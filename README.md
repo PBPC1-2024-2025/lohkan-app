@@ -4,7 +4,7 @@
 <p> Aplikasi LohKan kini dapat diunduh melalui XXXXX </p>
 
 ## <summary><strong>Alur Pemakaian Aplikasi Web LohKan</strong></summary>
-<p> Terdapat beberapa langkah yang harus dilakukan dalam menggunakan Aplikasi Web Lohkan diantaranya yaitu 
+<p> Terdapat beberapa langkah yang harus dilakukan dalam menggunakan Aplikasi Web Lohkan diantaranya yaitu </br>
 1. </br>
 2. </br>
 3. </br>
