@@ -1,13 +1,13 @@
 # <strong>Hi there :wave: , We are LohKan! :sparkles: </strong>
 
 ## <summary><strong>Aplikasi</strong></summary>
-<p> Aplikasi dapat diunduh melalui XXXXX </p>
+<p> Aplikasi LohKan kini dapat diunduh melalui XXXXX </p>
 
 ## <summary><strong>Alur Pemakaian Aplikasi Web LohKan</strong></summary>
 <p> Terdapat beberapa langkah yang harus dilakukan dalam menggunakan Aplikasi Web Lohkan diantaranya yaitu 
-1. 
-2.
-3. 
+1. </br>
+2. </br>
+3. </br>
 </p>
 
 ## <summary><strong>Anggota Kelompok C01 </strong></summary>
