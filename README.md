@@ -3,11 +3,11 @@
 ## <summary><strong>Aplikasi</strong></summary>
 <p> Aplikasi LohKan kini dapat diunduh melalui XXXXX </p>
 
-## <summary><strong>Alur Pemakaian Aplikasi Web LohKan</strong></summary>
+## <summary><strong>Alur Integrasi Web dengan App LohKan</strong></summary>
 <p> Terdapat beberapa langkah yang harus dilakukan dalam menggunakan Aplikasi Web Lohkan diantaranya yaitu </br>
-1. </br>
-2. </br>
-3. </br>
+1. Anda bisa menambahkan data produk yang ingin ditambahkan melalui web LohKan
+2. Web akan menyimpan data di server yang dimana data ini akan diintegrasikan (ditarik datanya ke aplikasi mobile LohKan)
+3. Ketika anda membuka aplikasi LohKan, aplikasi anda sudah dapat menampilkan data yang sama dengan web LohKan
 </p>
 
 ## <summary><strong>Anggota Kelompok C01 </strong></summary>
