@@ -3,11 +3,12 @@
 ## <summary><strong>Aplikasi</strong></summary>
 <p> Aplikasi LohKan kini dapat diunduh melalui XXXXX </p>
 
-## <summary><strong>Alur Integrasi Web dengan App LohKan</strong></summary>
-<p> Terdapat beberapa langkah yang harus dilakukan dalam menggunakan Aplikasi Web Lohkan diantaranya yaitu </br>
-1. Anda bisa menambahkan data produk yang ingin ditambahkan melalui web LohKan
-2. Web akan menyimpan data di server yang dimana data ini akan diintegrasikan (ditarik datanya ke aplikasi mobile LohKan)
-3. Ketika anda membuka aplikasi LohKan, aplikasi anda sudah dapat menampilkan data yang sama dengan web LohKan
+## <summary><strong>Alur Integrasi Web dengan Aplikasi LohKan</strong></summary>
+<p> Terdapat beberapa langkah dalam pengintegrasian django dengan flutter LohKan yaitu</br>
+1. Menambahkan library http agar aplikasi bisa terhubung dengan website LohKan.
+2. Menggunakan kembali autentikasi yang ada pada web (login, ,logout dan register) untuk diintegrasikan ke aplikasi flutter, agar pengguna dapat login sesuai perannya dengan memberikan token id.
+3. Memakai library pbp_django_auth untuk mengurus request server yang berupa cookies request agar user bisa terautentikasi dan tertorisasi dengan baik. 
+4. Data dataset yang ada di website, bisa diubah dari format JSON ke format objek dart dengan "https://app.quicktype.io/" agar bisa ditampilkan di aplikasi LohKan pada fitur Explore. 
 </p>
 
 ## <summary><strong>Anggota Kelompok C01 </strong></summary>
@@ -29,7 +30,7 @@ Penasaran bagaimana mengkreasi hidangan lokal favorit Anda? Fitur Tanya Resep ka
 <details>
   <summary><strong>View More</strong></summary>
 </p>
-Manfaat dari website ini adalah </br>
+Manfaat dari aplikasi ini adalah </br>
 1. Penemuan Kuliner Lokal yang Autentik 
 Dengan LohKan, temukan keunikan kuliner Bangka Belitung yang mungkin belum pernah Anda dengar sebelumnya. Situs ini menawarkan informasi yang kaya untuk membantu Anda mengeksplorasi keanekaragaman kuliner lokal, membuka cakrawala Anda pada rasa autentik yang luar biasa.
 </br></br>
@@ -67,7 +68,7 @@ Pengen tahu lebih dalam tentang produk lokal Kota Pangkalpinang? Lohkan juga men
 LohKan menggunakan dataset yang kami buat sendiri di link berikut ini https://bit.ly/InitialDatasetLohKan dengan mengutip berbagai sumber diantaranya Hotelier, Makanan Oleh-Oleh , Tempat Wisata Seru, Selasar, Keluyuran, Tempat Wisata Seru, Wisata Belitung, dan Gotravelly. Dataset ini dibuat dengan field yang terdiri dari nama makanan, deskripsi makanan hingga range harga beserta fotonya agar para foodies dapat melihat secara langsung makanan yang dimaksud.</br></br>
 
 # <summary><strong>Jenis Pengguna (Role) :family:</strong></summary>
-Pada website kami, terdapat dua jenis pengguna diantaranya</br>
+Pada aplikasi kami, terdapat dua jenis pengguna diantaranya</br>
 1. Admin</br>
 Admin akan bertugas menambah produk maupun menjawab pertanyaan yang diajukan oleh para foodies pada fitur "Tanya Resep".</br>
 2. Foodies</br>
