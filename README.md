@@ -5,10 +5,10 @@
 
 ## <summary><strong>Alur Integrasi Web dengan Aplikasi LohKan</strong></summary>
 <p> Terdapat beberapa langkah dalam pengintegrasian django dengan flutter LohKan yaitu</br>
-1. Menambahkan library http agar aplikasi bisa terhubung dengan website LohKan.
-2. Menggunakan kembali autentikasi yang ada pada web (login, ,logout dan register) untuk diintegrasikan ke aplikasi flutter, agar pengguna dapat login sesuai perannya dengan memberikan token id.
-3. Memakai library pbp_django_auth untuk mengurus request server yang berupa cookies request agar user bisa terautentikasi dan tertorisasi dengan baik. 
-4. Data dataset yang ada di website, bisa diubah dari format JSON ke format objek dart dengan "https://app.quicktype.io/" agar bisa ditampilkan di aplikasi LohKan pada fitur Explore. 
+1. Menambahkan library http agar aplikasi bisa terhubung dengan website LohKan.</br>
+2. Menggunakan kembali autentikasi yang ada pada web (login, ,logout dan register) untuk diintegrasikan ke aplikasi flutter, agar pengguna dapat login sesuai perannya dengan memberikan token id.</br>
+3. Memakai library pbp_django_auth untuk mengurus request server yang berupa cookies request agar user bisa terautentikasi dan tertorisasi dengan baik. </br>
+4. Data dataset yang ada di website, bisa diubah dari format JSON ke format objek dart dengan "https://app.quicktype.io/" agar bisa ditampilkan di aplikasi LohKan pada fitur Explore. </br>
 </p>
 
 ## <summary><strong>Anggota Kelompok C01 </strong></summary>
