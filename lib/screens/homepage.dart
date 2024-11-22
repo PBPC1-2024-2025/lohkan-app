@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             Text(
               'Welcome Back, ${widget.username}!',
-              style: Theme.of(context).textTheme.headlineSmall,),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             SizedBox(
               height: 200,
@@ -230,11 +230,12 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             Text(
               'Best Restaurant',
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             const _RestaurantCard(
               name: 'Urang Kampong Due',
+              imagePath: 'assets/resto1.jpeg',
               location: 'Belitung',
               latitude: -2.737298839690619,
               longitude: 107.62366889321741,
@@ -242,6 +243,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 10),
             const _RestaurantCard(
               name: 'Martabak Bangka Liem',
+              imagePath: 'assets/resto2.jpg',
               location: 'Pangkalpinang',
               latitude: -2.1334,
               longitude: 106.1126,
@@ -249,6 +251,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 10),
             const _RestaurantCard(
               name: 'Seafood Tepi Laut',
+              imagePath: 'assets/resto3.jpg',
               location: 'Pangkalpinang',
               latitude: -2.1090,
               longitude: 106.1185,
@@ -272,7 +275,7 @@ class _IconText extends StatelessWidget {
 
     return Column(
       children: [
-        Icon(icon, size: 40, color: Colors.brown),
+        Icon(icon, size: 40, color: Color(0xFF800000),),
         const SizedBox(height: 5),
         Column(
           children: words.map((word) {
@@ -291,11 +294,13 @@ class _IconText extends StatelessWidget {
 class _RestaurantCard extends StatelessWidget {
   final String name;
   final String location;
+  final String imagePath;
   final double latitude;
   final double longitude;
 
   const _RestaurantCard({
     required this.name,
+    required this.imagePath, 
     required this.location,
     required this.latitude,
     required this.longitude,
@@ -313,14 +318,63 @@ class _RestaurantCard extends StatelessWidget {
     }
 
     return Card(
-      child: ListTile(
-        title: Text(name),
-        subtitle: Text(location),
-        trailing: TextButton(
-          onPressed: _launchGoogleMaps,
-          child: const Text('See Details →'),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                imagePath,
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF800000),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Color(0xFF800000),),
+                    ),
+                    child: Text(
+                      location,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: TextButton(
+                      onPressed: _launchGoogleMaps,
+                      child: const Text('See Details →'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
