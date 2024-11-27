@@ -49,6 +49,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Hero Image Section
               SizedBox(
                 height: 200,
                 child: PageView.builder(
@@ -58,7 +59,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          // Toggle visibility on tap
                           hoveredIndex = hoveredIndex == index ? null : index;
                         });
                       },
@@ -81,6 +81,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
                                 image: DecorationImage(
                                   image: NetworkImage(slide['image']!),
                                   fit: BoxFit.cover,
@@ -139,7 +146,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Keep other components unchanged
+              // List of Articles
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
