@@ -39,6 +39,7 @@ dependencies:
   provider: ^6.1.2
   pbp_django_auth: ^0.4.0
   http: ^1.2.2
+  file_picker: ^5.1.0
 
 dev_dependencies:
   flutter_test:
