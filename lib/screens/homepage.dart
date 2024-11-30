@@ -377,4 +377,3 @@ class _RestaurantCard extends StatelessWidget {
     );
   }
 }
-
