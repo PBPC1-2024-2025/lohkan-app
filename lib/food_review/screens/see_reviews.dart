@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lohkan_app/food_review/models/foodreview_entry.dart';
 
 class DetailScreen extends StatelessWidget {
-  final ProductEntry review;
+  final ReviewEntry review;
 
   DetailScreen({required this.review});
 
@@ -11,7 +11,7 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Reviews for ${review.fields.name}"),
-        backgroundColor: Colors.red, // Adjust the color to match your theme
+        backgroundColor: Colors.red,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -27,7 +27,7 @@ class DetailScreen extends StatelessWidget {
               Container(
                 padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.orange[100], // Adjust the color to match your theme
+                  color: Colors.orange[100],
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -41,19 +41,16 @@ class DetailScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 18, color: Colors.black54),
               ),
               SizedBox(height: 20),
-              for (var comment in review.fields.comments.split('\n')) // Assuming multiple comments are separated by new lines
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: ReviewCard(comment: comment),
-                ),
+              ...review.fields.comments.split('\n').map((comment) => ReviewCard(comment: comment, rating: review.fields.rating.toDouble())).toList(),
+
               SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Go back to the main review page
+                    Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Adjust the button color to match your theme
+                    backgroundColor: Colors.red,
                   ),
                   child: Text('Back to Main Reviews'),
                 ),
@@ -68,8 +65,9 @@ class DetailScreen extends StatelessWidget {
 
 class ReviewCard extends StatelessWidget {
   final String comment;
+  final double rating;
 
-  ReviewCard({required this.comment});
+  ReviewCard({required this.comment, required this.rating});
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +97,7 @@ class ReviewCard extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.star, color: Colors.amber),
-              Text("5.0"), // Assuming the rating for each comment
+              Text(rating.toString()), // Display dynamic rating
             ],
           ),
         ],
