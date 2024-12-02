@@ -4,6 +4,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lohkan_app/article/screens/articles.dart';
+import 'package:lohkan_app/bucket_list/screens/bucket_list.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -17,6 +18,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  bool _showBucketList = false;
 
   // Daftar halaman untuk navigasi BottomNavigationBar
   final List<Widget> _pages = [
@@ -25,13 +27,14 @@ class _HomePageState extends State<HomePage> {
     const Center(child: Text('Food Review Page')), // Halaman Food Review
     const Center(child: Text('Ask Recipe Page')), // Halaman Ask Recipe
     const ArticleScreen(), // Halaman Article
-    // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI 
+    const BucketListScreen(), // Halaman Bucket List
   ];
   
 
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+      _showBucketList = false; // Disable Bucket List view
     });
   }
 
@@ -68,7 +71,7 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () {
               setState(() {
-                _currentIndex = 0; // ini tolong diganti ke page nya ABHI ya (buat abhi)
+                _showBucketList = true;
               });
             },
           ),
@@ -110,7 +113,12 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _currentIndex == 0 ? _buildHomePage() : _pages[_currentIndex],
+      body: _showBucketList
+        ? const BucketListScreen() // Show Bucket List if active
+        : (_currentIndex == 0
+            ? _buildHomePage()
+            : _pages[_currentIndex]),
+
       bottomNavigationBar: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -142,6 +150,10 @@ class _HomePageState extends State<HomePage> {
                 icon: Icon(Icons.article),
                 label: 'Article',
               ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.bookmark),
+              //   label: 'Bucket List',
+              // )
             ],
           ),
         ],
