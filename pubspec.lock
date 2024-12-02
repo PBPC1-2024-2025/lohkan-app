@@ -93,7 +93,7 @@ packages:
       sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "5.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -102,7 +102,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.23"
-    version: "5.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -114,7 +113,6 @@ packages:
     source: sdk
     version: "0.0.0"
   http:
-    dependency: "direct main"
     dependency: "direct main"
     description:
       name: http
