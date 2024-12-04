@@ -72,7 +72,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                   child: InkWell(
                     onTap: () {
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => DetailScreen(review: review['details']),
+                        builder: (context) => DetailScreen(foodName: review['details'].fields.name,foodType: review['details'].fields.foodType,),
                       ));
                     },
                     child: Column(
@@ -91,7 +91,8 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DetailScreen(review: review['details']),
+                                builder: (context) => DetailScreen(foodName: review['details'].fields.name,foodType: review['details'].fields.foodType,),
+
                               ),
                             );
                           },

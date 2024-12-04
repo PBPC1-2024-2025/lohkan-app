@@ -1,119 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:lohkan_app/food_review/models/foodreview_entry.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DetailScreen extends StatelessWidget {
-  final ReviewEntry review;
+  final String foodName;
+  final String foodType;
 
-  DetailScreen({required this.review});
+  DetailScreen({required this.foodName, required this.foodType});
+
+  Future<Map<String, dynamic>> fetchReviews() async {
+    final Uri url = Uri.parse('http://127.0.0.1:8000/food-review/reviews/food/$foodName/$foodType/?format=json');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load reviews for $foodName of type $foodType');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Reviews for ${review.fields.name}"),
-        backgroundColor: Colors.red,
+        title: Text("Reviews for $foodName", style: TextStyle(color: Colors.white)), 
+        backgroundColor: Color(0xFF6D0000),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Type: ${review.fields.foodType}",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Colors.orange[100],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  "${review.fields.rating} ★",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ),
-              SizedBox(height: 20),
-              Text(
-                getRecommendationLabel(review.fields.rating as double),
-                style: TextStyle(fontSize: 18, color: Colors.black54),
-              ),
-              SizedBox(height: 20),
-              ...review.fields.comments.split('\n').map((comment) => ReviewCard(comment: comment, rating: review.fields.rating.toDouble())).toList(),
-
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: fetchReviews(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Text("Error: ${snapshot.error}");
+          } else if (snapshot.hasData) {
+            var reviews = snapshot.data!['reviews'] as List<dynamic>;
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure elements stretch to full width
+                children: [
+                  SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF6D0000), // Dark red color as per your design
+                      borderRadius: BorderRadius.circular(30), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Internal padding
+                    margin: EdgeInsets.symmetric(horizontal: 50), // Margin for the sides
+                    child: Text(
+                      "Type: $foodType",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // Text color is white
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  child: Text('Back to Main Reviews'),
-                ),
+                  SizedBox(height: 10),
+                  Center(
+                    child: Text("${snapshot.data!['average_rating'].toStringAsFixed(1)}", style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.amber)),
+                  ),
+                  Center(
+                    child: Text(snapshot.data!['rating_label'], style: TextStyle(fontSize: 18, color: Colors.red)),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF9B3C3C), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                    child: Center(
+                      child: Text('Back to Main Reviews', style: TextStyle(fontSize: 18, color: Colors.white)),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ...reviews.map((review) => ReviewCard(review: review)).toList(),
+                ],
               ),
-            ],
-          ),
-        ),
+            );
+          } else {
+            return Text("No reviews found");
+          }
+        },
       ),
     );
   }
 }
 
 class ReviewCard extends StatelessWidget {
-  final String comment;
-  final double rating;
+  final dynamic review;
 
-  ReviewCard({required this.comment, required this.rating});
+  ReviewCard({required this.review});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      margin: EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            comment,
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 10),
-          Row(
-            children: [
-              Icon(Icons.star, color: Colors.amber),
-              Text(rating.toString()), // Display dynamic rating
-            ],
-          ),
-        ],
+    return Card(
+      margin: EdgeInsets.zero, // Remove margin for full width
+      elevation: 2,
+      child: ListTile(
+        contentPadding: EdgeInsets.all(16),
+        title: Text("Reviewed by: ${review['username']}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        subtitle: Text("${review['rating']} Stars\n${review['comments']}", style: TextStyle(fontSize: 16)),
+        isThreeLine: true,
       ),
     );
-  }
-}
-
-String getRecommendationLabel(double rating) {
-  if (rating >= 4.5) {
-    return "Highly Recommended! 🤩";
-  } else if (rating >= 4.0) {
-    return "Recommended! 😊";
-  } else if (rating >= 3.0) {
-    return "Fairly Good 😐";
-  } else {
-    return "Might be better 🤔";
   }
 }
