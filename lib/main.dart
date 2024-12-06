@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
         title: 'LohKan',
         theme: ThemeData(
           primarySwatch: Colors.brown,
+          fontFamily: 'Inter',
         ),
         home: const LoginPage(), // Memanggil HomePage dari file homepage.dart
       )
