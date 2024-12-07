@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lohkan_app/article/models/article_entry.dart';
 import 'package:http/http.dart' as http; 
 import 'package:lohkan_app/article/screens/article_detail.dart';
+
 
 class ArticleScreen extends StatefulWidget {
   const ArticleScreen({super.key});
@@ -126,7 +128,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                         backgroundColor: Colors.grey.shade300,
                       ),
                       child: const Text(
-                        'Choose File',
+                        'Choose Image',
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
@@ -163,57 +165,117 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  // Modifikasi method _addArticle untuk mengirim gambar
-  void _addArticle() async {
-    final title = _titleController.text;
-    final description = _descriptionController.text;
+//   void _addArticle() async {
+//     final title = _titleController.text;
+//     final description = _descriptionController.text;
 
-    final url = Uri.parse('http://127.0.0.1:8000/article/add/');
-    
-    // Gunakan multipart request untuk mengirim file
-    var request = http.MultipartRequest('POST', url);
-    
-    // Tambahkan field hanya jika tidak kosong
-    if (title.isNotEmpty) {
-      request.fields['title'] = title;
-    }
-    
-    if (description.isNotEmpty) {
-      request.fields['description'] = description;
-    }
-    
-    // Tambahkan file gambar jika dipilih
-    if (_imageFile != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath('image', _imageFile!.path)
-      );
-    }
+//     // Validasi input
+//     if (title.isEmpty || description.isEmpty) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//             const SnackBar(content: Text('Title and description are required'))
+//         );
+//         return;
+//     }
 
-    try {
-      var response = await request.send();
+//     final url = Uri.parse('http://127.0.0.1:8000/article/create-article/');
+//     try {
+//         var request = http.MultipartRequest('POST', url);
+//         request.fields['title'] = title;
+//         request.fields['description'] = description;
+        
+//         if (_imageFile != null) {
+//             request.files.add(
+//                 await http.MultipartFile.fromPath('image', _imageFile!.path)
+//             );
+//         }
 
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Article added successfully')),
-        );
-        Navigator.of(context).pop(); // Tutup dialog
-        setState(() {
-          _imageFile = null; // Reset image file
-          _titleController.clear(); // Bersihkan controller
-          _descriptionController.clear(); // Bersihkan controller
-        }); // Refresh tampilan
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to add article')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
+//         var streamedResponse = await request.send();
+//         var response = await http.Response.fromStream(streamedResponse);
+
+//         // Parse JSON response
+//         final responseData = json.decode(response.body);
+
+//         if (response.statusCode == 201 && responseData['status'] == 'success') {
+//             ScaffoldMessenger.of(context).showSnackBar(
+//                 SnackBar(content: Text(responseData['message']))
+//             );
+
+//             // Reset state dan tutup dialog
+//             setState(() {
+//                 _imageFile = null;
+//                 _titleController.clear();
+//                 _descriptionController.clear();
+//             });
+
+//             // Optional: Refresh artikel list atau navigasi
+//             fetchArticles(); // Misalnya method untuk mengambil ulang daftar artikel
+//         } else {
+//             ScaffoldMessenger.of(context).showSnackBar(
+//                 SnackBar(content: Text(responseData['message'] ?? 'Failed to add article'))
+//             );
+//         }
+//     } catch (e) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(content: Text('Error: $e'))
+//         );
+//     }
+// }
+
+void _addArticle() async {
+  final title = _titleController.text;
+  final description = _descriptionController.text;
+
+  // Validasi input
+  if (title.isEmpty || description.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Title and description are required')),
+    );
+    return;
   }
 
+  try {
+    // Ambil gambar menggunakan image_picker
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+
+      final url = Uri.parse('http://127.0.0.1:8000/article/create-article/');
+      var request = http.MultipartRequest('POST', url);
+      request.fields['title'] = title;
+      request.fields['description'] = description;
+      request.files.add(await http.MultipartFile.fromPath('image', file.path));
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      // Parse JSON response
+      final responseData = json.decode(response.body);
+
+      if (response.statusCode == 201 && responseData['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(responseData['message'])),
+        );
+
+        // Reset state dan tutup dialog
+        setState(() {
+          _titleController.clear();
+          _descriptionController.clear();
+        });
+
+        // Refresh artikel list atau navigasi
+        await fetchArticles();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(responseData['message'] ?? 'Failed to add article')),
+        );
+      }
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
+  }
+}
   // Fungsi untuk menampilkan dialog edit artikel
   void _showEditArticleDialog(ArticleEntry article) {
     _titleController.text = article.fields.title;
@@ -269,7 +331,9 @@ class _ArticleScreenState extends State<ArticleScreen> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                _updateArticle(article.pk);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
               ),
@@ -281,20 +345,30 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  // Fungsi untuk memperbarui artikel
-  void _updateArticle(int articleId) async {
-    final title = _titleController.text;
-    final description = _descriptionController.text;
+  void _updateArticle(String articleId) async {
+  final title = _titleController.text;
+  final description = _descriptionController.text;
 
-    if (title.isNotEmpty && description.isNotEmpty) {
-      final url = Uri.parse('http://127.0.0.1:8000/article/update/$articleId/');
-      final response = await http.put(
-        url,
-        body: {
-          'title': title,
-          'description': description,
-        },
+  if (title.isNotEmpty && description.isNotEmpty) {
+    final url = Uri.parse('http://127.0.0.1:8000/article/edit-article/$articleId');
+    var request = http.MultipartRequest('POST', url);
+
+    // Tambahkan field
+    request.fields['title'] = title;
+    request.fields['description'] = description;
+
+    // Tambahkan file gambar jika ada
+    if (_imageFile != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          _imageFile!.path,
+        ),
       );
+    }
+
+    try {
+      var response = await request.send();
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -304,33 +378,47 @@ class _ArticleScreenState extends State<ArticleScreen> {
         setState(() {}); // Refresh tampilan
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update article')),
+          SnackBar(content: Text('Failed to update article. Status code: ${response.statusCode}')),
         );
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please fill all fields')),
+    );
   }
+}
+  void _deleteArticle(String articleId) async {
+  final url = Uri.parse('http://127.0.0.1:8000/article/delete/$articleId');
 
-  // Fungsi untuk menghapus artikel
-  void _deleteArticle(int articleId) async {
-    final url = Uri.parse('http://127.0.0.1:8000/article/delete/$articleId');
+  try {
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Article deleted successfully')),
-    );
-    setState(() {}); // Refresh tampilan
-  } else {
-    print('Error: ${response.body}');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to delete article')),
-    );
+        const SnackBar(content: Text('Article deleted successfully')),
+      );
+
+      // Refresh data (panggil fungsi fetch data)
+      await fetchArticles(); // Pastikan ada metode ini untuk memuat ulang daftar artikel
+
+      setState(() {}); // Perbarui UI
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete article. Status code: ${response.statusCode}')),
+      );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -561,7 +649,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                                               const SizedBox(width: 8),
                                               ElevatedButton(
                                                 onPressed: () {
-                                                  _deleteArticle(int.parse(article.pk));
+                                                  _deleteArticle(article.pk);
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.red,

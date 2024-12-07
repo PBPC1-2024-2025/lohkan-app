@@ -1,5 +1,5 @@
 // TODO : 
-// masih belum bisa di nampilin dan kirim comment
+// masih belum bisa kirim comment
 import 'package:flutter/material.dart'; 
 import 'dart:convert';
 import 'package:http/http.dart' as http; 
@@ -87,8 +87,7 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
 
   // Fungsi untuk menambah komentar baru ke database
   Future<void> _addComment(String content) async {
-    final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}/add_comment/'); 
-
+    final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}'); 
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -101,6 +100,8 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
       print('Failed to add comment: ${response.statusCode}');
     }
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
