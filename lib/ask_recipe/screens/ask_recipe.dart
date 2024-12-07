@@ -1,38 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:lohkan_app/ask_recipe/screens/create_recipe.dart';
+import 'package:lohkan_app/ask_recipe/models/recipe_entry.dart';
 
-class AskRecipeScreen extends StatelessWidget {
+class AskRecipeScreen extends StatefulWidget {
   const AskRecipeScreen({super.key});
 
   @override
+  _AskRecipeScreenState createState() => _AskRecipeScreenState();
+}
+
+class _AskRecipeScreenState extends State<AskRecipeScreen> {
+  late Future<List<AskRecipeEntry>> _recipesFuture;
+
+  // Fungsi untuk fetch data resep dari API
+  Future<List<AskRecipeEntry>> _fetchRecipes(CookieRequest request) async {
+    final String apiUrl = 'http://127.0.0.1:8000/ask_recipe/json/'; 
+
+    try {
+      final response = await request.get(apiUrl);
+      
+      if (response is List) {
+        return List<AskRecipeEntry>.from(
+          response.map((x) => AskRecipeEntry.fromJson(x))
+        );
+      } else {
+        throw Exception('Invalid data format');
+      }
+    } catch (e) {
+      throw Exception('Failed to load recipes: $e');
+    }
+  }
+
+  // Method untuk me-refresh daftar resep
+  void _refreshRecipes() {
+    setState(() {
+      // Memperbarui future dengan fetch ulang data resep
+      _recipesFuture = _fetchRecipes(
+        Provider.of<CookieRequest>(context, listen: false)
+      );
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    _recipesFuture = _fetchRecipes(request);
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Recipe Group',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Recipe Group', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0), // Padding di seluruh layar
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Kotak input untuk mencari resep
+              // Kotak input untuk mencari resep (tetap sama)
               Container(
                 width: double.infinity,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white, // Background putih
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
                       blurRadius: 5,
-                      offset: Offset(0, 2), // Posisi bayangan
+                      offset: Offset(0, 2),
                     ),
-                  ], // Menambahkan bayangan
+                  ],
                 ),
                 child: TextField(
                   decoration: InputDecoration(
@@ -43,63 +87,54 @@ class AskRecipeScreen extends StatelessWidget {
                       color: Colors.black.withOpacity(0.5),
                     ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Padding lebih rapat
+                    contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                   ),
                 ),
               ),
-              const SizedBox(height: 16), // Jarak antara Find Recipe dan daftar resep
+              const SizedBox(height: 16),
 
-              // Kotak dengan ujung bulat di bawah untuk daftar resep dengan efek bayangan
+              // Menggunakan FutureBuilder dengan _recipesFuture yang bisa direfresh
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1), // Warna bayangan
-                        blurRadius: 8, // Jarak bayangan
-                        offset: Offset(0, -4), // Bayangan di atas
-                      ),
-                    ],
-                  ),
-                  child: ListView(
-                    children: [
-                      _buildRecipeCard(
-                        title: 'Es Ai Lo Bi',
-                        description: 'A traditional ice dessert from the region.',
-                        imageUrl: 'https://via.placeholder.com/120x120',
-                      ),
-                      _buildRecipeCard(
-                        title: 'Kue Pelite',
-                        description: 'A sweet Bangka delicacy made from rice flour and coconut.',
-                        imageUrl: 'https://via.placeholder.com/120x120',
-                      ),
-                      _buildRecipeCard(
-                        title: 'Mie Koba',
-                        description: 'A noodle dish famous in Pangkalpinang.',
-                        imageUrl: 'https://via.placeholder.com/120x120',
-                      ),
-                    ],
-                  ),
+                child: FutureBuilder<List<AskRecipeEntry>>(
+                  future: _recipesFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No recipes available.'));
+                    }
+
+                    return ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        final recipe = snapshot.data![index];
+                        return _buildRecipeGroup(
+                          title: recipe.fields.title,
+                          description: recipe.fields.ingredients,
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
       ),
-      // Tombol Add di kanan bawah
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-           // Tampilkan modal CreateRecipeScreen
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return const CreateRecipeScreen();  // Menampilkan modal
+              return CreateRecipeScreen(
+                onRecipeAdded: _refreshRecipes,
+              );
             },
           );
         },
@@ -109,11 +144,10 @@ class AskRecipeScreen extends StatelessWidget {
     );
   }
 
-  // Membuat Card Resep
-  Widget _buildRecipeCard({
+  // Widget untuk membuat group resep (tetap sama)
+  Widget _buildRecipeGroup({
     required String title,
     required String description,
-    required String imageUrl,
   }) {
     return Card(
       elevation: 4,
@@ -123,10 +157,6 @@ class AskRecipeScreen extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(12.0),
-        leading: CircleAvatar(
-          radius: 30,
-          backgroundImage: NetworkImage(imageUrl),
-        ),
         title: Text(
           title,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

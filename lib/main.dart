@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lohkan_app/ask_recipe/screens/ask_recipe.dart';
 import 'package:lohkan_app/authentication/screens/login.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:lohkan_app/ask_recipe/screens/ask_recipe.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.brown,
         ),
-        home: const AskRecipeScreen(), // Memanggil HomePage dari file homepage.dart
+        home: const LoginPage(), // Memanggil HomePage dari file homepage.dart
       )
     );
   }
