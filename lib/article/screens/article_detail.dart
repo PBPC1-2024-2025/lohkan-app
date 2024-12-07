@@ -1,9 +1,9 @@
-// TODO : 
-// masih belum bisa kirim comment
 import 'package:flutter/material.dart'; 
 import 'dart:convert';
 import 'package:http/http.dart' as http; 
 import 'package:lohkan_app/article/models/article_entry.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   final String articleId; // ID artikel untuk mengambil data dari database
@@ -33,31 +33,15 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
     _fetchComments(); // Mengambil komentar saat halaman dimuat
   }
 
-  // // Fungsi untuk mengambil komentar dari database JSON
-  // Future<void> _fetchComments() async {
-  //   final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}/');
-  //   final response = await http.get(url);
+  // Fungsi untuk mengambil komentar dari database JSON
+Future<void> _fetchComments() async {
+  final request = Provider.of<CookieRequest>(context, listen: false);
 
-  //   if (response.statusCode == 200) {
-  //     setState(() {
-  //       comments = json.decode(response.body);
-  //     });
-  //   } else {
-  //     // Jika gagal mengambil data
-  //     print('Failed to load comments: ${response.statusCode}');
-  //   }
-  // }
-
-  Future<void> _fetchComments() async {
-  // Use the article detail URL to fetch the entire article with its comments
-  final url = Uri.parse('http://127.0.0.1:8000/article/json/');
-  
   try {
-    final response = await http.get(url);
+    final response = await request.get('http://127.0.0.1:8000/article/json/');
 
-    if (response.statusCode == 200) {
-      // Parse the JSON response
-      List<dynamic> jsonResponse = json.decode(response.body);
+    if (response != null) {
+      List<dynamic> jsonResponse = response;
       
       // Find the specific article that matches the ID
       var articleData = jsonResponse.firstWhere(
@@ -77,31 +61,47 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
         });
       }
     } else {
-      print('Failed to load article: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      print('Failed to load article');
     }
   } catch (e) {
     print('Error fetching article: $e');
   }
 }
 
-  // Fungsi untuk menambah komentar baru ke database
-  Future<void> _addComment(String content) async {
-    final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}'); 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'content': content}), 
-    );
+// Fungsi untuk menambah komentar baru ke database
+Future<void> _addComment(String content) async {
+  final request = Provider.of<CookieRequest>(context, listen: false);
 
-    if (response.statusCode == 201) {
-      _fetchComments();
+  try {
+    final response = await request.post(
+  'http://127.0.0.1:8000/article/json/', 
+  {
+    'article_id': widget.articleId,  // ID artikel yang ingin Anda tambahkan komentar
+    'content': content,        // Konten komentar yang akan ditambahkan
+  },
+);
+
+
+    if (response['status'] == 'success') {
+      // Komentar berhasil ditambahkan
+      _fetchComments(); // Refresh daftar komentar
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Komentar berhasil ditambahkan')),
+      );
     } else {
-      print('Failed to add comment: ${response.statusCode}');
+      // Gagal menambahkan komentar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response['message'] ?? 'Gagal menambahkan komentar')),
+      );
     }
+  } catch (e) {
+    print('Error adding comment: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Terjadi kesalahan: $e')),
+    );
   }
-
-  
+}
 
   @override
   Widget build(BuildContext context) {
