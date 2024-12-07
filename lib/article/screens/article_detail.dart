@@ -1,8 +1,9 @@
 // TODO : 
 // masih belum bisa di nampilin dan kirim comment
 import 'package:flutter/material.dart'; 
-import 'dart:convert'; // Untuk mengelola JSON
-import 'package:http/http.dart' as http; // Untuk melakukan request HTTP
+import 'dart:convert';
+import 'package:http/http.dart' as http; 
+import 'package:lohkan_app/article/models/article_entry.dart';
 
 class ArticleDetailPage extends StatefulWidget {
   final String articleId; // ID artikel untuk mengambil data dari database
@@ -32,35 +33,71 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
     _fetchComments(); // Mengambil komentar saat halaman dimuat
   }
 
-  // Fungsi untuk mengambil komentar dari database JSON
+  // // Fungsi untuk mengambil komentar dari database JSON
+  // Future<void> _fetchComments() async {
+  //   final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}/');
+  //   final response = await http.get(url);
+
+  //   if (response.statusCode == 200) {
+  //     setState(() {
+  //       comments = json.decode(response.body);
+  //     });
+  //   } else {
+  //     // Jika gagal mengambil data
+  //     print('Failed to load comments: ${response.statusCode}');
+  //   }
+  // }
+
   Future<void> _fetchComments() async {
-    final url = Uri.parse('https://example.com/api/articles/${widget.articleId}/comments'); // Ganti dengan URL API
+  // Use the article detail URL to fetch the entire article with its comments
+  final url = Uri.parse('http://127.0.0.1:8000/article/json/');
+  
+  try {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      setState(() {
-        comments = json.decode(response.body); // Parse JSON dan simpan di state
-      });
+      // Parse the JSON response
+      List<dynamic> jsonResponse = json.decode(response.body);
+      
+      // Find the specific article that matches the ID
+      var articleData = jsonResponse.firstWhere(
+        (article) => article['pk'] == widget.articleId,
+        orElse: () => null,
+      );
+
+      if (articleData != null) {
+        setState(() {
+          // Extract comments from the article's fields
+          comments = (articleData['fields']['comments'] as List).map((commentData) => {
+            'id': commentData['id'],
+            'user': commentData['user'] ?? 'Anonymous',
+            'content': commentData['content'],
+            'created_at': commentData['created_at']
+          }).toList();
+        });
+      }
     } else {
-      // Jika gagal mengambil data
-      print('Failed to load comments: ${response.statusCode}');
+      print('Failed to load article: ${response.statusCode}');
+      print('Response body: ${response.body}');
     }
+  } catch (e) {
+    print('Error fetching article: $e');
   }
+}
 
   // Fungsi untuk menambah komentar baru ke database
   Future<void> _addComment(String content) async {
-    final url = Uri.parse('https://example.com/api/articles/${widget.articleId}/comments'); // Ganti dengan URL API
+    final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}/add_comment/'); 
+
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: json.encode({'content': content}), // Data yang dikirimkan ke database
+      body: json.encode({'content': content}), 
     );
 
     if (response.statusCode == 201) {
-      // Jika berhasil ditambahkan, refresh komentar
       _fetchComments();
     } else {
-      // Jika gagal menyimpan
       print('Failed to add comment: ${response.statusCode}');
     }
   }
