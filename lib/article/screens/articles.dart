@@ -1,10 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lohkan_app/article/models/article_entry.dart';
 import 'package:http/http.dart' as http; 
 import 'package:lohkan_app/article/screens/article_detail.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 
 class ArticleScreen extends StatefulWidget {
@@ -165,62 +166,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-//   void _addArticle() async {
-//     final title = _titleController.text;
-//     final description = _descriptionController.text;
-
-//     // Validasi input
-//     if (title.isEmpty || description.isEmpty) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//             const SnackBar(content: Text('Title and description are required'))
-//         );
-//         return;
-//     }
-
-//     final url = Uri.parse('http://127.0.0.1:8000/article/create-article/');
-//     try {
-//         var request = http.MultipartRequest('POST', url);
-//         request.fields['title'] = title;
-//         request.fields['description'] = description;
-        
-//         if (_imageFile != null) {
-//             request.files.add(
-//                 await http.MultipartFile.fromPath('image', _imageFile!.path)
-//             );
-//         }
-
-//         var streamedResponse = await request.send();
-//         var response = await http.Response.fromStream(streamedResponse);
-
-//         // Parse JSON response
-//         final responseData = json.decode(response.body);
-
-//         if (response.statusCode == 201 && responseData['status'] == 'success') {
-//             ScaffoldMessenger.of(context).showSnackBar(
-//                 SnackBar(content: Text(responseData['message']))
-//             );
-
-//             // Reset state dan tutup dialog
-//             setState(() {
-//                 _imageFile = null;
-//                 _titleController.clear();
-//                 _descriptionController.clear();
-//             });
-
-//             // Optional: Refresh artikel list atau navigasi
-//             fetchArticles(); // Misalnya method untuk mengambil ulang daftar artikel
-//         } else {
-//             ScaffoldMessenger.of(context).showSnackBar(
-//                 SnackBar(content: Text(responseData['message'] ?? 'Failed to add article'))
-//             );
-//         }
-//     } catch (e) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//             SnackBar(content: Text('Error: $e'))
-//         );
-//     }
-// }
-
 void _addArticle() async {
   final title = _titleController.text;
   final description = _descriptionController.text;
@@ -239,43 +184,50 @@ void _addArticle() async {
     if (pickedFile != null) {
       final file = File(pickedFile.path);
 
-      final url = Uri.parse('http://127.0.0.1:8000/article/create-article/');
-      var request = http.MultipartRequest('POST', url);
-      request.fields['title'] = title;
-      request.fields['description'] = description;
-      request.files.add(await http.MultipartFile.fromPath('image', file.path));
+      // Gunakan request.postMultipart dari CookieRequest
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      
+      // Siapkan data multipart
+      var formData = {
+        'title': title,
+        'description': description,
+        'image': await http.MultipartFile.fromPath('image', file.path),
+      };
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+      // Kirim request
+      final response = await request.postJson(
+        'http://127.0.0.1:8000/article/create-article-flutter/', 
+        formData
+      );
 
-      // Parse JSON response
-      final responseData = json.decode(response.body);
-
-      if (response.statusCode == 201 && responseData['status'] == 'success') {
+      // Cek response
+      if (response['status'] == 'success') {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(responseData['message'])),
+          SnackBar(content: Text(response['message'])),
         );
 
-        // Reset state dan tutup dialog
+        // Reset state
         setState(() {
           _titleController.clear();
           _descriptionController.clear();
         });
 
-        // Refresh artikel list atau navigasi
+        // Refresh artikel list
         await fetchArticles();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(responseData['message'] ?? 'Failed to add article')),
+          SnackBar(content: Text(response['message'] ?? 'Failed to add article')),
         );
       }
     }
   } catch (e) {
+    print('Error adding article: $e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Error: $e')),
     );
   }
 }
+
   // Fungsi untuk menampilkan dialog edit artikel
   void _showEditArticleDialog(ArticleEntry article) {
     _titleController.text = article.fields.title;

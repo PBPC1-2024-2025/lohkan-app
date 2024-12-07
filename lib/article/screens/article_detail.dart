@@ -68,40 +68,27 @@ Future<void> _fetchComments() async {
   }
 }
 
-// Fungsi untuk menambah komentar baru ke database
-Future<void> _addComment(String content) async {
-  final request = Provider.of<CookieRequest>(context, listen: false);
+    // Fungsi untuk menambah komentar baru ke database
+    Future<void> _addComment(String content) async {
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      try {
+        final response = await request.postJson(
+        'http://127.0.0.1:8000/article/article/${widget.articleId}/add_comment_flutter/', 
 
-  try {
-    final response = await request.post(
-  'http://127.0.0.1:8000/article/json/', 
-  {
-    'article_id': widget.articleId,  // ID artikel yang ingin Anda tambahkan komentar
-    'content': content,        // Konten komentar yang akan ditambahkan
-  },
-);
-
-
-    if (response['status'] == 'success') {
-      // Komentar berhasil ditambahkan
-      _fetchComments(); // Refresh daftar komentar
-      
+        jsonEncode(<String, String>{
+                'article_id': widget.articleId,  
+                'content': content, 
+        }));
+        
+        _fetchComments(); // Refresh daftar komentar
+    } catch (e) {
+      print('Error adding comment: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Komentar berhasil ditambahkan')),
-      );
-    } else {
-      // Gagal menambahkan komentar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(response['message'] ?? 'Gagal menambahkan komentar')),
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
       );
     }
-  } catch (e) {
-    print('Error adding comment: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Terjadi kesalahan: $e')),
-    );
-  }
 }
+
 
   @override
   Widget build(BuildContext context) {
