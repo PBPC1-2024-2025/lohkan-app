@@ -398,7 +398,8 @@ void _addArticle() async {
   try {
     final response = await http.delete(url);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 204) {
+      // 204 No Content berarti penghapusan sukses
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Article deleted successfully')),
       );
@@ -407,6 +408,10 @@ void _addArticle() async {
       await fetchArticles(); // Pastikan ada metode ini untuk memuat ulang daftar artikel
 
       setState(() {}); // Perbarui UI
+    } else if (response.statusCode == 404) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Article not found')),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to delete article. Status code: ${response.statusCode}')),
@@ -418,6 +423,7 @@ void _addArticle() async {
     );
   }
 }
+
 
 
   @override
