@@ -110,12 +110,12 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                       decoration: InputDecoration(
                         hintText: 'Find Recipe',
                         hintStyle: TextStyle(
-                          color: Colors.grey[800],
+                          color: Colors.grey[600],
                           fontSize: 16,
                         ),
                         prefixIcon: Icon(
                           Icons.search,
-                          color: Colors.grey[680],
+                          color: Colors.grey[600],
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
@@ -153,6 +153,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                           final recipe = snapshot.data![index];
                           return _buildRecipeGroup(
                             title: recipe.fields.title,
+                            description: recipe.fields.ingredients,
                             imageUrl: "https://via.placeholder.com/50",
                           );
                         },
@@ -170,6 +171,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
 
   Widget _buildRecipeGroup({
     required String title,
+    required String description,
     required String imageUrl,
   }) {
     return Container(
@@ -208,21 +210,36 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                 ),
                 const SizedBox(width: 12),
                 
-                // Recipe Title
+                // Recipe Details
                 Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
                 
                 // Book Icon
                 Icon(
                   Icons.menu_book_rounded,
-                  color: Colors.grey[700],
+                  color: Colors.grey[600],
                   size: 45,
                 ),
               ],

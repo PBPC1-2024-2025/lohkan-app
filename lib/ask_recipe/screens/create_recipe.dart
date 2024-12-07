@@ -21,7 +21,6 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
 
   String? _errorMessage;
 
-  // Fungsi untuk membuat resep di Django
   Future<void> _createRecipe(CookieRequest request) async {
     final url = 'http://127.0.0.1:8000/ask_recipe/create_recipe_flutter/';
 
@@ -29,7 +28,6 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     final servings = int.tryParse(_servingsController.text);
 
     if (cookingTime == null || servings == null) {
-      // Jika input tidak valid, tampilkan pesan kesalahan di dalam dialog
       setState(() {
         _errorMessage = 'Cooking time and servings must be valid numbers!';
       });
@@ -97,7 +95,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                     'Add Your Recipe',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 32,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                     ),
@@ -107,9 +105,9 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
               SizedBox(height: 20),
               _buildTextField('Recipe Title', _titleController),
               SizedBox(height: 10),
-              _buildTextField('Ingredients', _ingredientsController),
+              _buildMultilineTextField('Ingredients', _ingredientsController),
               SizedBox(height: 10),
-              _buildTextField('Instructions', _instructionsController),
+              _buildMultilineTextField('Instructions', _instructionsController),
               SizedBox(height: 10),
               _buildTextField('Cooking Time', _cookingTimeController),
               SizedBox(height: 10),
@@ -131,7 +129,6 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
   }
 
-  // Fungsi untuk membuat TextField dengan controller
   Widget _buildTextField(String hint, TextEditingController controller) {
     return TextField(
       controller: controller,
@@ -146,35 +143,60 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
   }
 
-  // Tombol untuk menyimpan atau membatalkan
+  // New method for multiline text fields
+  Widget _buildMultilineTextField(String hint, TextEditingController controller) {
+    return TextField(
+      controller: controller,
+      maxLines: null, // Allows unlimited lines
+      minLines: 3, // Minimum height of 3 lines
+      decoration: InputDecoration(
+        labelText: hint,
+        labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        alignLabelWithHint: true, // Aligns the label with the input text
+      ),
+      style: TextStyle(fontSize: 18),
+    );
+  }
+
   Widget _buildActionButtons(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
           onPressed: () {
-            Navigator.of(context).pop(); // Menutup dialog tanpa menyimpan
+            Navigator.of(context).pop();
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF550000), // Dark red background for cancel
+            foregroundColor: Colors.white, // White text
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
           child: Text('Cancel'),
         ),
         SizedBox(width: 20),
         ElevatedButton(
           onPressed: () {
             final request = Provider.of<CookieRequest>(context, listen: false);
-      
-            // Pastikan semua field terisi sebelum mengirim
             if (_titleController.text.isNotEmpty &&
                 _ingredientsController.text.isNotEmpty &&
                 _instructionsController.text.isNotEmpty &&
                 _cookingTimeController.text.isNotEmpty &&
                 _servingsController.text.isNotEmpty) {
-              _createRecipe(request); // Menggunakan instance CookieRequest
+              _createRecipe(request);
             } else {
               setState(() {
                 _errorMessage = 'All fields are required!';
               });
             }
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black, // Black background for save
+            foregroundColor: Colors.white, // White text
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
           child: Text("Save"),
         ),
       ],
