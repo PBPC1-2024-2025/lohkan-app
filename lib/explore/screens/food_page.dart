@@ -35,23 +35,29 @@ class _FoodPageState extends State<FoodPage> {
 
   @override
   Widget build(BuildContext context) {
-    var _foodType = 'Main Course';
-    var _typeColor = Colors.green.shade400;
+    var foodType = 'Type.MC';
+    var typeColor = Colors.green.shade400;
     if (widget.food.fields.type.toString() == 'Type.MC') {
-      _foodType = 'Main Course';
-      _typeColor = Colors.green.shade400;
+      foodType = 'Main Course';
+      typeColor = Colors.green.shade300;
     } else if (widget.food.fields.type.toString() == 'Type.DS') {
-      _foodType = 'Dessert';
-      _typeColor = Colors.yellow.shade400;
+      foodType = 'Dessert';
+      typeColor = Colors.yellow.shade300;
     } else if (widget.food.fields.type.toString() == 'Type.DR') {
-      _foodType = 'Drinks';
-      _typeColor = Colors.pink.shade400;
+      foodType = 'Drinks';
+      typeColor = Colors.pink.shade300;
     } else if (widget.food.fields.type.toString() == 'Type.SN') {
-      _foodType = 'Snacks';
-      _typeColor = Colors.red.shade400;
+      foodType = 'Snacks';
+      typeColor = Colors.red.shade300;
     }
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back),
+          ),
           titleSpacing: 0,
           title: Container(
             width: MediaQuery.of(context).size.width * 1,
@@ -71,9 +77,7 @@ class _FoodPageState extends State<FoodPage> {
           controller: _controller,
           children: [
             CachedNetworkImage(
-                // imageUrl: widget.food.fields.imageLink,
-                imageUrl:
-                    'https://asset.kompas.com/crops/N8WTCiVClutwEkjIgCykYbt1e2Q=/142x72:863x553/1200x800/data/photo/2022/09/27/633297e88244b.jpg',
+                imageUrl: widget.food.fields.imageLink,
                 imageBuilder: (context, imageProvider) {
                   return Container(
                     height: MediaQuery.of(context).size.width,
@@ -112,20 +116,20 @@ class _FoodPageState extends State<FoodPage> {
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.normal),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                         decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
+                            color: typeColor,
                             borderRadius: BorderRadius.circular(10)),
                         child: Text(
-                          _foodType,
+                          foodType,
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.normal,
+                            fontWeight: FontWeight.w600,
                             color: Colors.grey.shade800,
                           ),
                         ),

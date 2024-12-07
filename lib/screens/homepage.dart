@@ -20,14 +20,14 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   // Daftar halaman untuk navigasi BottomNavigationBar
-  final List<Widget> _pages = [
-    const Center(child: Text('Home Page')), // Halaman Home
-    const ExploreScreen(), // Halaman Explore
-    const Center(child: Text('Food Review Page')), // Halaman Food Review
-    const Center(child: Text('Ask Recipe Page')), // Halaman Ask Recipe
-    const ArticleScreen(), // Halaman Article
-    // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI
-  ];
+  List<Widget> get _pages => [
+        Center(child: Text('Home Page')), // Halaman Home
+        ExploreScreen(username: widget.username), // Halaman Explore
+        Center(child: Text('Food Review Page')), // Halaman Food Review
+        Center(child: Text('Ask Recipe Page')), // Halaman Ask Recipe
+        ArticleScreen(), // Halaman Article
+        // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI
+      ];
 
   void _onTabTapped(int index) {
     setState(() {
