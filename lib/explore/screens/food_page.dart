@@ -70,12 +70,11 @@ class _FoodPageState extends State<FoodPage> {
           titleSpacing: 0,
           title: Container(
             width: MediaQuery.of(context).size.width * 1,
-            child: Row(
+            child: const Row(
               children: [
                 Text(
-                  "${widget.food.fields.name}",
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w900),
+                  "Food Details",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                 ),
               ],
             ),

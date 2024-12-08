@@ -227,7 +227,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         Expanded(
           flex: 1,
           child: Padding(
-            padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+            padding: EdgeInsets.fromLTRB(20, 5, 20, 5),
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
