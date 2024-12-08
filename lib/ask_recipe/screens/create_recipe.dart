@@ -82,7 +82,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width * 0.85,
-                height: 100,
+                height: 80,
                 decoration: BoxDecoration(
                   color: Color(0xFF550000),
                   borderRadius: BorderRadius.only(
@@ -95,7 +95,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
                     'Add Your Recipe',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize: 24,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w700,
                     ),

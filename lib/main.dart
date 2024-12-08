@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.brown,
         ),
-        home: const AskRecipeScreen(), // Memanggil HomePage dari file homepage.dart
+        home: const LoginPage(), // Memanggil HomePage dari file homepage.dart
       )
     );
   }

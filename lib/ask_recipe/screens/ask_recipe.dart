@@ -1,8 +1,11 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:lohkan_app/ask_recipe/screens/create_recipe.dart';
 import 'package:lohkan_app/ask_recipe/models/recipe_entry.dart';
+import 'package:lohkan_app/ask_recipe/screens/view_recipe.dart';
 
 class AskRecipeScreen extends StatefulWidget {
   const AskRecipeScreen({super.key});
@@ -13,6 +16,7 @@ class AskRecipeScreen extends StatefulWidget {
 
 class _AskRecipeScreenState extends State<AskRecipeScreen> {
   late Future<List<AskRecipeEntry>> _recipesFuture;
+  String searchQuery = ''; // Menyimpan kata kunci pencarian
 
   Future<List<AskRecipeEntry>> _fetchRecipes(CookieRequest request) async {
     final String apiUrl = 'http://127.0.0.1:8000/ask_recipe/json/';
@@ -28,6 +32,13 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
     } catch (e) {
       throw Exception('Failed to load recipes: $e');
     }
+  }
+
+  // Fungsi untuk memperbarui kata kunci pencarian dan memfilter resep
+  void _updateSearchQuery(String query) {
+    setState(() {
+      searchQuery = query;
+    });
   }
 
   void _refreshRecipes() {
@@ -60,7 +71,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Recipe Group',
+                        'Ask Recipe',
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -107,6 +118,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
+                      onChanged: _updateSearchQuery, // Menangani perubahan teks
                       decoration: InputDecoration(
                         hintText: 'Find Recipe',
                         hintStyle: TextStyle(
@@ -146,14 +158,33 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                         return const Center(child: Text('No recipes available.'));
                       }
 
+                      // Filter resep berdasarkan searchQuery
+                      final filteredRecipes = snapshot.data!
+                          .where((recipe) =>
+                              recipe.fields.title
+                                  .toLowerCase()
+                                  .contains(searchQuery.toLowerCase()))
+                          .toList();
+
+                      if (filteredRecipes.isEmpty) {
+                        return const Center(child: Text('No recipes match your search.'));
+                      }
+
                       return ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: snapshot.data!.length,
+                        itemCount: filteredRecipes.length,
                         itemBuilder: (context, index) {
-                          final recipe = snapshot.data![index];
+                          final recipe = filteredRecipes[index];
+                          final String recipeId = recipe.pk; // No need to parse to int
+
                           return _buildRecipeGroup(
                             title: recipe.fields.title,
                             imageUrl: "https://via.placeholder.com/50",
+                            ingredients: recipe.fields.ingredients,
+                            instructions: recipe.fields.instructions,
+                            cookingTime: recipe.fields.cookingTime,
+                            servings: recipe.fields.servings,
+                            recipeId: recipeId, // Pass UUID directly as string
                           );
                         },
                       );
@@ -171,65 +202,172 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
   Widget _buildRecipeGroup({
     required String title,
     required String imageUrl,
+    required String ingredients,
+    required String instructions,
+    required int cookingTime,
+    required int servings,
+    required String recipeId,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {},
+    return Dismissible(
+      key: Key(recipeId),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        // Show confirmation dialog
+        return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Delete Recipe'),
+              content: Text('Are you sure you want to delete "$title"?'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Delete'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.red,
           borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                // Recipe Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
-                  child: Image.network(
-                    imageUrl,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(right: 20),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          ],
+        ),
+      ),
+      onDismissed: (direction) {
+        _deleteRecipe(recipeId);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: Offset(0, 1),
+            ),
+          ],
+          border: Border.all(color: Colors.grey[300]!),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              // Recipe Image
+              ClipRRect(
+                borderRadius: BorderRadius.circular(25),
+                child: Image.network(
+                  imageUrl,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(width: 12),
+              
+              // Recipe Title
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 12),
-                
-                // Recipe Title
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+              ),
+              
+              // Book Icon
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RecipeDetailScreen(
+                        title: title,
+                        imageUrl: imageUrl,
+                        ingredients: ingredients,
+                        instructions: instructions,
+                        cookingTime: cookingTime,
+                        servings: servings,
+                        recipeId: recipeId,
+                        onRecipeUpdated: _refreshRecipes, 
+                      ),
                     ),
-                  ),
-                ),
-                
-                // Book Icon
-                Icon(
+                  );
+                },
+                child: Icon(
                   Icons.menu_book_rounded,
                   color: Colors.grey[700],
                   size: 45,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  // Add this method to your _AskRecipeScreenState class
+  Future<void> _deleteRecipe(String recipeId) async {
+    final url = Uri.parse('http://127.0.0.1:8000/ask_recipe/delete_recipe/$recipeId/');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // Check if the response is valid JSON
+        final jsonResponse = json.decode(response.body);
+
+        // Refresh the recipe list after successful deletion
+        _refreshRecipes();
+
+        // Show a snackbar to confirm deletion
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(jsonResponse['message'])),
+          );
+        }
+      } else {
+        // Handle the error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to delete recipe')),
+          );
+        }
+      }
+    } catch (e) {
+      // Handle any other exceptions
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete recipe: $e')),
+        );
+      }
+    }
   }
 }
