@@ -49,7 +49,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
                       ExploreScreen(username: widget.username)),
             );
           },
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
         ),
         titleSpacing: 0,
         title: Container(

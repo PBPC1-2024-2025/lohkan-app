@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class FoodPage extends StatefulWidget {
   final food;
-  const FoodPage({super.key, this.food});
+  final String username;
+  const FoodPage({super.key, this.food, required this.username});
 
   @override
   State<FoodPage> createState() => _FoodPageState();
@@ -56,7 +57,7 @@ class _FoodPageState extends State<FoodPage> {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
           ),
           titleSpacing: 0,
           title: Container(
@@ -71,6 +72,34 @@ class _FoodPageState extends State<FoodPage> {
               ],
             ),
           ),
+          actions: widget.username != 'admin'
+              ? null
+              : [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: PopupMenuButton(
+                      icon: const Icon(Icons.more_vert),
+                      onSelected: (String value) {
+                        if (value == 'Edit') {
+                          // TODO: push to edit page
+                        } else {
+                          // TODO: delete
+                        }
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'Edit',
+                          child: Text('Edit'),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'Delete',
+                          child: Text('Delete'),
+                        )
+                      ],
+                    ),
+                  )
+                ],
         ),
         extendBody: true,
         body: ListView(

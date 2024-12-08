@@ -274,6 +274,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             MaterialPageRoute(
                                 builder: (context) => FoodPage(
                                       food: snapshot.data![index],
+                                      username: widget.username,
                                     )),
                           ),
                           child: CachedNetworkImage(
