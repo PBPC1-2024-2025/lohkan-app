@@ -7,8 +7,9 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class AddFoodForm extends StatefulWidget {
-  const AddFoodForm({super.key});
+  final String username;
 
+  const AddFoodForm({super.key, required this.username});
   @override
   State<AddFoodForm> createState() => _AddFoodFormState();
 }
@@ -42,7 +43,11 @@ class _AddFoodFormState extends State<AddFoodForm> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ExploreScreen(username: widget.username)),
+            );
           },
           icon: Icon(Icons.arrow_back),
         ),

@@ -206,7 +206,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
               onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AddFoodForm(),
+                  builder: (context) => AddFoodForm(
+                    username: widget.username,
+                  ),
                 ),
               ),
               backgroundColor: const Color(0xFF550000),
