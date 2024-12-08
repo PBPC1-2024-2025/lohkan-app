@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:lohkan_app/explore/screens/form_edit.dart';
 
 class FoodPage extends StatefulWidget {
   final food;
@@ -81,7 +82,15 @@ class _FoodPageState extends State<FoodPage> {
                       icon: const Icon(Icons.more_vert),
                       onSelected: (String value) {
                         if (value == 'Edit') {
-                          // TODO: push to edit page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditFoodForm(
+                                username: widget.username,
+                                food: widget.food,
+                              ),
+                            ),
+                          );
                         } else {
                           // TODO: delete
                         }

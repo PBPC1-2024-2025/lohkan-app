@@ -69,10 +69,17 @@ class _AddFoodFormState extends State<AddFoodForm> {
             Padding(
               padding: const EdgeInsets.all(8),
               child: TextFormField(
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                style: TextStyle(color: Colors.grey.shade900, fontSize: 16),
                 cursorColor: Colors.grey.shade600,
                 decoration: InputDecoration(
-                  border: InputBorder.none,
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF573838), width: 1)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF550000), width: 1)),
                   hintText: 'Name',
                   hintStyle:
                       TextStyle(color: Colors.grey.shade600, fontSize: 16),
@@ -99,11 +106,19 @@ class _AddFoodFormState extends State<AddFoodForm> {
               padding: const EdgeInsets.all(8),
               child: TextFormField(
                 keyboardType: TextInputType.multiline,
-                minLines: 1,
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                minLines: 3,
+                maxLines: 10,
+                style: TextStyle(color: Colors.grey.shade900, fontSize: 16),
                 cursorColor: Colors.grey.shade600,
                 decoration: InputDecoration(
-                  border: InputBorder.none,
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF573838), width: 1)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF550000), width: 1)),
                   hintText: 'Description',
                   hintStyle:
                       TextStyle(color: Colors.grey.shade600, fontSize: 16),
@@ -129,10 +144,17 @@ class _AddFoodFormState extends State<AddFoodForm> {
             Padding(
               padding: const EdgeInsets.all(8),
               child: TextFormField(
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                style: TextStyle(color: Colors.grey.shade900, fontSize: 16),
                 cursorColor: Colors.grey.shade600,
                 decoration: InputDecoration(
-                  border: InputBorder.none,
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF573838), width: 1)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF550000), width: 1)),
                   hintText: '0',
                   hintStyle:
                       TextStyle(color: Colors.grey.shade600, fontSize: 16),
@@ -161,10 +183,17 @@ class _AddFoodFormState extends State<AddFoodForm> {
             Padding(
               padding: const EdgeInsets.all(8),
               child: TextFormField(
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                style: TextStyle(color: Colors.grey.shade900, fontSize: 16),
                 cursorColor: Colors.grey.shade600,
                 decoration: InputDecoration(
-                  border: InputBorder.none,
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF573838), width: 1)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF550000), width: 1)),
                   hintText: '0',
                   hintStyle:
                       TextStyle(color: Colors.grey.shade600, fontSize: 16),
@@ -193,10 +222,17 @@ class _AddFoodFormState extends State<AddFoodForm> {
             Padding(
               padding: const EdgeInsets.all(8),
               child: TextFormField(
-                style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+                style: TextStyle(color: Colors.grey.shade900, fontSize: 16),
                 cursorColor: Colors.grey.shade600,
                 decoration: InputDecoration(
-                  border: InputBorder.none,
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF573838), width: 1)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF550000), width: 1)),
                   hintText: 'Image URL',
                   hintStyle:
                       TextStyle(color: Colors.grey.shade600, fontSize: 16),
@@ -222,6 +258,16 @@ class _AddFoodFormState extends State<AddFoodForm> {
             Padding(
               padding: EdgeInsets.all(8),
               child: DropdownMenu(
+                inputDecorationTheme: InputDecorationTheme(
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF573838), width: 1)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide:
+                          const BorderSide(color: Color(0xFF550000), width: 1)),
+                ),
                 dropdownMenuEntries: types.map<DropdownMenuEntry<String>>(
                   (String value) {
                     return DropdownMenuEntry(
@@ -238,12 +284,13 @@ class _AddFoodFormState extends State<AddFoodForm> {
               ),
             ),
             Align(
-              alignment: Alignment.bottomCenter,
+              alignment: Alignment.bottomLeft,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.black),
+                    backgroundColor:
+                        WidgetStateProperty.all(const Color(0xFF550000)),
                   ),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
@@ -267,7 +314,10 @@ class _AddFoodFormState extends State<AddFoodForm> {
                               .showSnackBar(const SnackBar(
                             content: Text("Food successfully added!"),
                           ));
-                          Navigator.pop(context);
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => ExploreScreen(
+                                      username: widget.username)));
                         } else {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
@@ -277,9 +327,12 @@ class _AddFoodFormState extends State<AddFoodForm> {
                       }
                     }
                   },
-                  child: const Text(
-                    "Save",
-                    style: TextStyle(color: Colors.white),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    child: Text(
+                      "Submit",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ),
