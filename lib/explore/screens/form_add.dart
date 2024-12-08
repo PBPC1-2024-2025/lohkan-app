@@ -43,11 +43,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ExploreScreen(username: widget.username)),
-            );
+            Navigator.of(context).pop(true);
           },
           icon: const Icon(Icons.arrow_back),
         ),
