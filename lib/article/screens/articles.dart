@@ -8,14 +8,14 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 
-class ArticleScreen extends StatefulWidget {
-  const ArticleScreen({super.key});
+class ArticleScreenAdmin extends StatefulWidget {
+  const ArticleScreenAdmin({super.key});
 
   @override
-  State<ArticleScreen> createState() => _ArticleScreenState();
+  State<ArticleScreenAdmin> createState() => _ArticleScreenState();
 }
 
-class _ArticleScreenState extends State<ArticleScreen> {
+class _ArticleScreenState extends State<ArticleScreenAdmin> {
   int? hoveredIndex;
 
   final TextEditingController _titleController = TextEditingController();
