@@ -68,7 +68,7 @@ class _FoodPageState extends State<FoodPage> {
                   "${widget.food.fields.name}",
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w900),
-                )
+                ),
               ],
             ),
           ),

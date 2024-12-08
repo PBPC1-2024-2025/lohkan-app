@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lohkan_app/explore/models/food.dart';
 import 'package:lohkan_app/explore/screens/food_page.dart';
-import 'package:lohkan_app/screens/form_add.dart';
+import 'package:lohkan_app/explore/screens/form_add.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
