@@ -1,13 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lohkan_app/explore/models/food.dart';
 import 'package:lohkan_app/explore/screens/food_page.dart';
+import 'package:lohkan_app/screens/form_add.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ExploreScreen extends StatefulWidget {
   final String username;
@@ -39,10 +37,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Widget _buildFilterButtonText(String type, String selected) {
     if (type == 'Type.MC') {
-      String _text = 'Main Course';
+      String text = 'Main Course';
       if (selected == type) {
         return Text(
-          _text,
+          text,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -50,7 +48,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
       } else {
         return Text(
-          _text,
+          text,
           style: TextStyle(
             color: Colors.grey.shade800,
             fontSize: 16,
@@ -58,10 +56,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
       }
     } else if (type == 'Type.DS') {
-      String _text = 'Dessert';
+      String text0 = 'Dessert';
       if (selected == type) {
         return Text(
-          _text,
+          text0,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -69,7 +67,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
       } else {
         return Text(
-          _text,
+          text0,
           style: TextStyle(
             color: Colors.grey.shade800,
             fontSize: 16,
@@ -77,10 +75,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
       }
     } else if (type == 'Type.DR') {
-      String _text = 'Drinks';
+      String text1 = 'Drinks';
       if (selected == type) {
         return Text(
-          _text,
+          text1,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -88,7 +86,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
       } else {
         return Text(
-          _text,
+          text1,
           style: TextStyle(
             color: Colors.grey.shade800,
             fontSize: 16,
@@ -96,10 +94,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
       }
     } else {
-      String _text = 'Snacks';
+      String text2 = 'Snacks';
       if (selected == type) {
         return Text(
-          _text,
+          text2,
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -107,7 +105,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         );
       } else {
         return Text(
-          _text,
+          text2,
           style: TextStyle(
             color: Colors.grey.shade800,
             fontSize: 16,
@@ -205,7 +203,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ),
       floatingActionButton: widget.username == 'admin'
           ? FloatingActionButton(
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddFoodForm(),
+                ),
+              ),
               backgroundColor: const Color(0xFF550000),
               shape: CircleBorder(),
               child: const Icon(
@@ -235,7 +238,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ),
         Expanded(
-          flex: 14,
+          flex: 13,
           child: FutureBuilder(
             future: fetchFood(request),
             builder: (context, AsyncSnapshot snapshot) {
