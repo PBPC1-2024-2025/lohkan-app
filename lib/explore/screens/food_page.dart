@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lohkan_app/explore/screens/form_edit.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+
+import 'explore.dart';
 
 class FoodPage extends StatefulWidget {
   final food;
@@ -37,6 +43,7 @@ class _FoodPageState extends State<FoodPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     var foodType = 'Type.MC';
     var typeColor = Colors.green.shade400;
     if (widget.food.fields.type.toString() == 'Type.MC') {
@@ -80,7 +87,7 @@ class _FoodPageState extends State<FoodPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: PopupMenuButton(
                       icon: const Icon(Icons.more_vert),
-                      onSelected: (String value) {
+                      onSelected: (String value) async {
                         if (value == 'Edit') {
                           Navigator.push(
                             context,
@@ -90,10 +97,59 @@ class _FoodPageState extends State<FoodPage> {
                                 food: widget.food,
                               ),
                             ),
-                          );
+                          ).then((value) {
+                            if (value) {
+                              setState(() {});
+                            }
+                          });
                         } else {
-                          // TODO: delete
+                          bool confirmDelete = await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text("Confirm Delete"),
+                              content: const Text(
+                                  "Are you sure you want to delete this food?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                  child: const Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                  child: const Text("Delete"),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmDelete) {
+                            final response = await request.postJson(
+                              "http://127.0.0.1:8000/explore/delete-food-flutter/${widget.food.pk}/",
+                              jsonEncode(
+                                <String, String>{
+                                  'delete': 'yes',
+                                },
+                              ),
+                            );
+                            if (context.mounted) {
+                              if (response['status'] == 'success') {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                  content: Text("Food successfully deleted!"),
+                                ));
+                                Navigator.of(context).pop(true);
+                              } else {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(
+                                  content:
+                                      Text("Something went wrong, try again."),
+                                ));
+                              }
+                            }
+                          }
                         }
+                        // Kirim ke Django dan tunggu respons
                       },
                       itemBuilder: (BuildContext context) =>
                           <PopupMenuEntry<String>>[

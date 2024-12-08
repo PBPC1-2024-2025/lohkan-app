@@ -210,7 +210,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     username: widget.username,
                   ),
                 ),
-              ),
+              ).then((value) {
+                if (value) {
+                  setState(() {});
+                }
+              }),
               backgroundColor: const Color(0xFF550000),
               shape: CircleBorder(),
               child: const Icon(
@@ -276,7 +280,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                       food: snapshot.data![index],
                                       username: widget.username,
                                     )),
-                          ),
+                          ).then((value) {
+                            if (value) {
+                              setState(() {});
+                            }
+                          }),
                           child: CachedNetworkImage(
                               imageUrl: _imageUrl,
                               imageBuilder: (context, imageProvider) {

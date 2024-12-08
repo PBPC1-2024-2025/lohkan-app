@@ -55,11 +55,7 @@ class _EditFoodFormState extends State<EditFoodForm> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                  builder: (context) =>
-                      ExploreScreen(username: widget.username)),
-            );
+            Navigator.of(context).pop();
           },
           icon: const Icon(Icons.arrow_back),
         ),
@@ -326,17 +322,13 @@ class _EditFoodFormState extends State<EditFoodForm> {
                           'type': _type,
                         }),
                       );
-                      print(response);
                       if (context.mounted) {
                         if (response['status'] == 'success') {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
                             content: Text("Food successfully edited!"),
                           ));
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => ExploreScreen(
-                                      username: widget.username)));
+                          Navigator.of(context).pop(true);
                         } else {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(

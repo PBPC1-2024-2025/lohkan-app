@@ -307,17 +307,13 @@ class _AddFoodFormState extends State<AddFoodForm> {
                           'type': _type,
                         }),
                       );
-                      print(response);
                       if (context.mounted) {
                         if (response['status'] == 'success') {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
                             content: Text("Food successfully added!"),
                           ));
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => ExploreScreen(
-                                      username: widget.username)));
+                          Navigator.of(context).pop(true);
                         } else {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(const SnackBar(
