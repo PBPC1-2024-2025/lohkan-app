@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:lohkan_app/ask_recipe/screens/chat.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:lohkan_app/ask_recipe/screens/create_recipe.dart';
@@ -212,7 +213,6 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
       key: Key(recipeId),
       direction: DismissDirection.endToStart,
       confirmDismiss: (direction) async {
-        // Show confirmation dialog
         return await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -234,6 +234,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
         );
       },
       background: Container(
+     
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.red,
@@ -258,21 +259,24 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: Offset(0, 1),
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                     builder: (context) => ChatScreen(title: title),
+                )
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12), // Rounded corners
             ),
-          ],
-          border: Border.all(color: Colors.grey[300]!),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
+            elevation: 2, // Shadow effect
+            side: BorderSide(color: Colors.grey[300]!), // Border color
+            minimumSize: const Size.fromHeight(80),
+            padding: const EdgeInsets.all(12),
+          ),
           child: Row(
             children: [
               // Recipe Image
@@ -286,7 +290,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // Recipe Title
               Expanded(
                 child: Text(
@@ -294,11 +298,12 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
+                    color: Colors.black,
                   ),
                 ),
               ),
-              
-              // Book Icon
+
+              // Book Icon (Button)
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -312,7 +317,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                         cookingTime: cookingTime,
                         servings: servings,
                         recipeId: recipeId,
-                        onRecipeUpdated: _refreshRecipes, 
+                        onRecipeUpdated: _refreshRecipes,
                       ),
                     ),
                   );
