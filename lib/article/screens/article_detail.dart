@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart'; 
 import 'dart:convert';
-import 'package:http/http.dart' as http; 
-import 'package:lohkan_app/article/models/article_entry.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
 class ArticleDetailPage extends StatefulWidget {
-  final String articleId; // ID artikel untuk mengambil data dari database
+  final String articleId;
   final String title;
   final String image;
   final String description;

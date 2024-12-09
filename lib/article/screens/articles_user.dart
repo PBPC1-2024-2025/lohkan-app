@@ -1,11 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:lohkan_app/article/models/article_entry.dart';
 import 'package:http/http.dart' as http; 
 import 'package:lohkan_app/article/screens/article_detail.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
 
 
 class ArticleScreenUser extends StatefulWidget {
@@ -17,9 +13,6 @@ class ArticleScreenUser extends StatefulWidget {
 
 class _ArticleScreenState extends State<ArticleScreenUser> {
   int? hoveredIndex;
-
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
 
   // Fungsi untuk mengambil data dari API
   Future<List<ArticleEntry>> fetchArticles() async {
