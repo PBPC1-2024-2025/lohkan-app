@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lohkan_app/article/screens/articles.dart';
 import 'package:lohkan_app/article/screens/articles_user.dart'; 
-
+import 'package:lohkan_app/ask_recipe/screens/ask_recipe.dart';
 
 class HomePage extends StatefulWidget {
   final String username;
@@ -29,7 +29,7 @@ class _HomePageState extends State<HomePage> {
       const Center(child: Text('Home Page')), // Halaman Home
       const Center(child: Text('Explore Page')), // Halaman Explore
       const Center(child: Text('Food Review Page')), // Halaman Food Review
-      const Center(child: Text('Ask Recipe Page')), // Halaman Ask Recipe
+      const AskRecipeScreen(), // Halaman Ask Recipe
       widget.username == 'admin' ? const ArticleScreenAdmin() : ArticleScreenUser(), // Halaman Article
       // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI 
     ];

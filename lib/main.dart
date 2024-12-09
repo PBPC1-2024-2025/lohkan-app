@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lohkan_app/authentication/screens/login.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:lohkan_app/ask_recipe/screens/ask_recipe.dart';
 
 void main() {
   runApp(const MyApp());

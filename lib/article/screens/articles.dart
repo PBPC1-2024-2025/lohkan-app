@@ -154,7 +154,7 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: _addArticle,
+              onPressed: () => _addArticle(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
               ),
@@ -166,7 +166,7 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
     );
   }
 
-void _addArticle() async {
+void _addArticle(BuildContext context) async {
   final title = _titleController.text;
   final description = _descriptionController.text;
 
@@ -179,44 +179,43 @@ void _addArticle() async {
   }
 
   try {
-    // Ambil gambar menggunakan image_picker
+    // Pilih gambar
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final file = File(pickedFile.path);
 
-      // Gunakan request.postMultipart dari CookieRequest
-      final request = Provider.of<CookieRequest>(context, listen: false);
-      
-      // Siapkan data multipart
-      var formData = {
-        'title': title,
-        'description': description,
-        'image': await http.MultipartFile.fromPath('image', file.path),
-      };
-
-      // Kirim request
-      final response = await request.postJson(
-        'http://127.0.0.1:8000/article/create-article-flutter/', 
-        formData
+      // Buat MultipartRequest
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://127.0.0.1:8000/article/create-article-flutter/'),
       );
 
-      // Cek response
-      if (response['status'] == 'success') {
+      // Tambahkan field form
+      request.fields['title'] = title;
+      request.fields['description'] = description;
+
+      // Tambahkan file gambar
+      request.files.add(
+        await http.MultipartFile.fromPath('image', file.path),
+      );
+
+      // Kirim request
+      var response = await request.send();
+
+      // Tangani response
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'])),
+          const SnackBar(content: Text('Article added successfully')),
         );
 
         // Reset state
-        setState(() {
-          _titleController.clear();
-          _descriptionController.clear();
-        });
+        _titleController.clear();
+        _descriptionController.clear();
 
-        // Refresh artikel list
-        await fetchArticles();
+        // Lakukan refresh data (misalnya memanggil fetchArticles)
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to add article')),
+          SnackBar(content: Text('Failed to add article: ${response.reasonPhrase}')),
         );
       }
     }
@@ -308,16 +307,6 @@ void _addArticle() async {
     // Tambahkan field
     request.fields['title'] = title;
     request.fields['description'] = description;
-
-    // Tambahkan file gambar jika ada
-    if (_imageFile != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'image',
-          _imageFile!.path,
-        ),
-      );
-    }
 
     try {
       var response = await request.send();
