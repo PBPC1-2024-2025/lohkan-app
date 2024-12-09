@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lohkan_app/article/models/article_entry.dart';
-import 'package:http/http.dart' as http; // ubh ke http pbp auth -> krn gk nyimpen session id 
+import 'package:http/http.dart' as http; 
 import 'package:lohkan_app/article/screens/article_detail.dart';
 
 class ArticleScreen extends StatefulWidget {
@@ -26,7 +28,27 @@ class _ArticleScreenState extends State<ArticleScreen> {
     }
   }
 
-  // Fungsi untuk menampilkan dialog form
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await _picker.pickImage(source: source);
+      
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to pick image: $e')),
+      );
+    }
+  }
+
+  // Modifikasi method _showAddArticleDialog
   void _showAddArticleDialog() {
     showDialog(
       context: context,
@@ -71,7 +93,34 @@ class _ArticleScreenState extends State<ArticleScreen> {
                     const Spacer(),
                     ElevatedButton(
                       onPressed: () {
-                        // Logika pemilihan file gambar dapat ditambahkan di sini
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return SafeArea(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: const Icon(Icons.camera_alt),
+                                    title: const Text('Take a Photo'),
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      _pickImage(ImageSource.camera);
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.photo_library),
+                                    title: const Text('Choose from Gallery'),
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      _pickImage(ImageSource.gallery);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey.shade300,
@@ -84,9 +133,9 @@ class _ArticleScreenState extends State<ArticleScreen> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'No File Chosen',
-                  style: TextStyle(color: Colors.grey),
+                Text(
+                  _imageFile == null ? 'No File Chosen' : _imageFile!.path.split('/').last,
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ],
             ),
@@ -114,35 +163,53 @@ class _ArticleScreenState extends State<ArticleScreen> {
     );
   }
 
-  // Fungsi untuk menambahkan artikel ke JSON (backend)
+  // Modifikasi method _addArticle untuk mengirim gambar
   void _addArticle() async {
     final title = _titleController.text;
     final description = _descriptionController.text;
 
-    if (title.isNotEmpty && description.isNotEmpty) {
-      final url = Uri.parse('http://127.0.0.1:8000/article/add/');
-      final response = await http.post(
-        url,
-        body: {
-          'title': title,
-          'description': description,
-        },
+    final url = Uri.parse('http://127.0.0.1:8000/article/add/');
+    
+    // Gunakan multipart request untuk mengirim file
+    var request = http.MultipartRequest('POST', url);
+    
+    // Tambahkan field hanya jika tidak kosong
+    if (title.isNotEmpty) {
+      request.fields['title'] = title;
+    }
+    
+    if (description.isNotEmpty) {
+      request.fields['description'] = description;
+    }
+    
+    // Tambahkan file gambar jika dipilih
+    if (_imageFile != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('image', _imageFile!.path)
       );
+    }
+
+    try {
+      var response = await request.send();
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Article added successfully')),
         );
         Navigator.of(context).pop(); // Tutup dialog
-        setState(() {}); // Refresh tampilan
+        setState(() {
+          _imageFile = null; // Reset image file
+          _titleController.clear(); // Bersihkan controller
+          _descriptionController.clear(); // Bersihkan controller
+        }); // Refresh tampilan
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to add article')),
         );
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        SnackBar(content: Text('Error: $e')),
       );
     }
   }
@@ -249,18 +316,19 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   // Fungsi untuk menghapus artikel
   void _deleteArticle(int articleId) async {
-    final url = Uri.parse('http://127.0.0.1:8000/article/delete/$articleId/');
+    final url = Uri.parse('http://127.0.0.1:8000/article/delete/$articleId');
     final response = await http.delete(url);
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Article deleted successfully')),
-      );
-      setState(() {}); // Refresh tampilan
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete article')),
-      );
+      const SnackBar(content: Text('Article deleted successfully')),
+    );
+    setState(() {}); // Refresh tampilan
+  } else {
+    print('Error: ${response.body}');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to delete article')),
+    );
     }
   }
 
@@ -493,7 +561,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
                                               const SizedBox(width: 8),
                                               ElevatedButton(
                                                 onPressed: () {
-                                                  // Fungsi delete artikel
+                                                  _deleteArticle(int.parse(article.pk));
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.red,
