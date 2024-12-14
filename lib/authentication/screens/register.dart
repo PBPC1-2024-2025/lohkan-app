@@ -20,6 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     return Scaffold(
+      backgroundColor: Colors.white, 
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(25.0),
@@ -34,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
               const Text(
                 'REGISTER',
                 style: TextStyle(
-                  fontSize: 28.0,
+                  fontSize: 32.0,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF800000),
                 ),
@@ -139,7 +140,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 child: const Text('REGISTER'),
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 40.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

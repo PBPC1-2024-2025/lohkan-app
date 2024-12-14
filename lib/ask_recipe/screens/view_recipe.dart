@@ -9,6 +9,7 @@ class RecipeDetailScreen extends StatefulWidget {
   final int cookingTime;
   final int servings;
   final String recipeId; 
+  final bool isAdmin; // Menambahkan parameter untuk menentukan apakah pengguna adalah admin
   final Function? onRecipeUpdated;
 
   const RecipeDetailScreen({
@@ -20,6 +21,7 @@ class RecipeDetailScreen extends StatefulWidget {
     required this.cookingTime,
     required this.servings,
     required this.recipeId, 
+    required this.isAdmin, // Menambahkan parameter isAdmin
     this.onRecipeUpdated,
   });
 
@@ -88,16 +90,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0), 
-            child: IconButton(
-              icon: const Icon(
-                Icons.edit,
-                color: Colors.white,
+          if (widget.isAdmin) // Menampilkan tombol Edit hanya jika pengguna adalah admin
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0), 
+              child: IconButton(
+                icon: const Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                ),
+                onPressed: _toggleEditMode,
               ),
-              onPressed: _toggleEditMode,
             ),
-          ),
         ],
         backgroundColor: const Color(0xFF800000),
       ),
@@ -130,7 +133,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
             ),
           ),
-          if (_isEditMode)
+          if (_isEditMode && widget.isAdmin) // Menampilkan EditRecipeScreen hanya jika pengguna adalah admin
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(

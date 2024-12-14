@@ -1,23 +1,21 @@
-// TODO : 
-// masih belum bisa di nampilin dan kirim comment
 import 'package:flutter/material.dart'; 
 import 'dart:convert';
-import 'package:http/http.dart' as http; 
-import 'package:lohkan_app/article/models/article_entry.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class ArticleDetailPage extends StatefulWidget {
-  final String articleId; // ID artikel untuk mengambil data dari database
+  final String articleId;
   final String title;
   final String image;
   final String description;
 
   const ArticleDetailPage({
-    Key? key,
+    super.key,
     required this.articleId,
     required this.title,
     required this.image,
     required this.description,
-  }) : super(key: key);
+  });
 
   @override
   State<ArticleDetailPage> createState() => _ArticleDetailPage();
@@ -33,31 +31,16 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
     _fetchComments(); // Mengambil komentar saat halaman dimuat
   }
 
-  // // Fungsi untuk mengambil komentar dari database JSON
-  // Future<void> _fetchComments() async {
-  //   final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}/');
-  //   final response = await http.get(url);
+  // Fungsi untuk mengambil komentar dari database JSON
+Future<void> _fetchComments() async {
+  final request = Provider.of<CookieRequest>(context, listen: false);
 
-  //   if (response.statusCode == 200) {
-  //     setState(() {
-  //       comments = json.decode(response.body);
-  //     });
-  //   } else {
-  //     // Jika gagal mengambil data
-  //     print('Failed to load comments: ${response.statusCode}');
-  //   }
-  // }
-
-  Future<void> _fetchComments() async {
-  // Use the article detail URL to fetch the entire article with its comments
-  final url = Uri.parse('http://127.0.0.1:8000/article/json/');
-  
   try {
-    final response = await http.get(url);
+    // final response = await request.get('http://127.0.0.1:8000/article/json/');
+    final response = await request.get('http://10.0.2.2:8000/article/json/');
 
-    if (response.statusCode == 200) {
-      // Parse the JSON response
-      List<dynamic> jsonResponse = json.decode(response.body);
+    if (response != null) {
+      List<dynamic> jsonResponse = response;
       
       // Find the specific article that matches the ID
       var articleData = jsonResponse.firstWhere(
@@ -77,30 +60,34 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
         });
       }
     } else {
-      print('Failed to load article: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      print('Failed to load article');
     }
   } catch (e) {
     print('Error fetching article: $e');
   }
 }
 
-  // Fungsi untuk menambah komentar baru ke database
-  Future<void> _addComment(String content) async {
-    final url = Uri.parse('http://127.0.0.1:8000/article/article/${widget.articleId}/add_comment/'); 
+    // Fungsi untuk menambah komentar baru ke database
+    Future<void> _addComment(String content) async {
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      try {
+        final response = await request.postJson(
+        'http://10.0.2.2:8000/article/article/${widget.articleId}/add_comment_flutter/', 
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'content': content}), 
-    );
-
-    if (response.statusCode == 201) {
-      _fetchComments();
-    } else {
-      print('Failed to add comment: ${response.statusCode}');
+        jsonEncode(<String, String>{
+                'article_id': widget.articleId,  
+                'content': content, 
+        }));
+        
+        _fetchComments(); // Refresh daftar komentar
+    } catch (e) {
+      print('Error adding comment: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
     }
-  }
+}
+
 
   @override
   Widget build(BuildContext context) {

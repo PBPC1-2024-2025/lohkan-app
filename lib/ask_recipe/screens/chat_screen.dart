@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math' as math; // Tambahkan import untuk math
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart'; // Tambahkan import untuk intl
 
 class ChatScreen extends StatefulWidget {
   final String groupId;
@@ -23,6 +25,10 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Message> _messages = [];
   final TextEditingController _messageController = TextEditingController();
   late CookieRequest _request;
+  final ScrollController _scrollController = ScrollController();
+
+  // Map untuk menyimpan warna pesan untuk setiap pengguna
+  final Map<String, Color> _userColors = {}; // Definisikan variabel _userColors di sini
 
   @override
   void initState() {
@@ -44,11 +50,12 @@ class _ChatScreenState extends State<ChatScreen> {
               sender: msg['user'],
               text: msg['message'],
               isFromCurrentUser: msg['user'] == widget.currentUserName,
-              timestamp: DateTime.parse(msg['timestamp']),
+              timestamp: DateTime.parse(msg['timestamp']).toLocal(), // Konversi ke zona waktu lokal
             )),
           ),
         );
       });
+      _scrollToBottom(); // Gulir ke bawah setelah pesan dimuat
     }
   }
 
@@ -65,20 +72,62 @@ class _ChatScreenState extends State<ChatScreen> {
     if (response != null && response['id'] != null) {
       _messageController.clear();
       _fetchMessages(); // Refresh pesan setelah mengirim
+      _scrollToBottom();
     }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+  }
+
+  // Fungsi untuk menentukan warna pesan berdasarkan sender
+  Color _getMessageColor(String sender) {
+    // Jika sender adalah admin, gunakan warna khusus
+    if (sender == 'admin') {
+      return const Color.fromARGB(255, 85, 3, 0); // Warna khusus untuk admin
+    }
+
+    // Jika sender belum memiliki warna, tetapkan warna acak dalam rumpun merah
+    if (!_userColors.containsKey(sender)) {
+      _userColors[sender] = _generateRandomRedColor();
+    }
+
+    // Kembalikan warna yang telah ditetapkan untuk sender
+    return _userColors[sender]!;
+  }
+
+  // Fungsi untuk menghasilkan warna acak dalam rumpun merah
+  Color _generateRandomRedColor() {
+    final random = math.Random(); // Gunakan math.Random untuk menghasilkan angka acak
+    final redValue = 100 + random.nextInt(156); // Nilai merah antara 100-255
+    final greenValue = 0 + random.nextInt(101); // Nilai hijau antara 0-100
+    final blueValue = 0 + random.nextInt(101); // Nilai biru antara 0-100
+    return Color.fromARGB(255, redValue, greenValue, blueValue);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName),
+        title: Text(
+          widget.groupName,
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: const Color(0xFF800000),
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              reverse: true, // Membalik urutan pesan
+              controller: _scrollController, // Gunakan ScrollController
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
@@ -98,45 +147,48 @@ class _ChatScreenState extends State<ChatScreen> {
                             message.sender,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey[600],
+                              color: Colors.black,
                               fontSize: 14,
                             ),
                           ),
                         SizedBox(height: 4),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: message.isFromCurrentUser
-                                ? Colors.blue.withOpacity(0.8)
-                                : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          padding: const EdgeInsets.all(12),
-                          constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.7,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                message.text,
-                                style: TextStyle(
-                                  color: message.isFromCurrentUser
-                                      ? Colors.white
-                                      : Colors.black,
-                                  fontSize: 16,
-                                ),
+                        IntrinsicWidth(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minWidth: 100, // Batasan minimum lebar pesan
+                              maxWidth: MediaQuery.of(context).size.width * 0.6, // Batasan maksimum lebar pesan
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: _getMessageColor(message.sender), // Gunakan fungsi untuk menentukan warna
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                message.timestamp.toString(),
-                                style: TextStyle(
-                                  color: message.isFromCurrentUser
-                                      ? Colors.white70
-                                      : Colors.black54,
-                                  fontSize: 12,
-                                ),
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    message.text,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.0,
+                                    ),
+                                    softWrap: true, // Membungkus teks jika terlalu panjang
+                                  ),
+                                  SizedBox(height: 4),
+                                  Align(
+                                    alignment: Alignment.bottomRight, // Posisi timestamp di kanan bawah
+                                    child: Text(
+                                      DateFormat('HH:mm').format(message.timestamp), // Format hanya jam dan menit
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.8),
+                                        fontSize: 10.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ],
@@ -157,11 +209,19 @@ class _ChatScreenState extends State<ChatScreen> {
                       hintText: 'Type your message',
                       border: OutlineInputBorder(),
                     ),
+                    maxLines: null, // Memungkinkan teks membungkus ke bawah jika terlalu panjang
+                    onSubmitted: (text) {
+                      // Mengirim pesan saat tombol Enter ditekan
+                      if (text.trim().isNotEmpty) {
+                        _sendMessage(text.trim());
+                      }
+                    },
                   ),
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
                   onPressed: () {
+                    // Mengirim pesan saat tombol Send ditekan
                     final text = _messageController.text.trim();
                     if (text.isNotEmpty) {
                       _sendMessage(text);
