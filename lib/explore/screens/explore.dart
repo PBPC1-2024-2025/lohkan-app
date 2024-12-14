@@ -144,6 +144,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         title: Container(
           width: MediaQuery.of(context).size.width * 0.9,
