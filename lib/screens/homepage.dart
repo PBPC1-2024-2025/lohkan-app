@@ -86,7 +86,8 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () async {
               final request = context.read<CookieRequest>(); // Ambil instance CookieRequest
-              final response = await request.logout("http://127.0.0.1:8000/auth/logout/"); // Endpoint logout
+              // final response = await request.logout("http://127.0.0.1:8000/auth/logout/"); // Endpoint logout
+              final response = await request.logout("http://10.0.2.2:8000/auth/logout/"); // Endpoint logout
 
               if (context.mounted) { // Pastikan context masih tersedia
                 if (response['status']) { // Logout berhasil
@@ -176,6 +177,7 @@ class _HomePageState extends State<HomePage> {
             SizedBox(
               height: 200,
               child: PageView.builder(
+                physics: const BouncingScrollPhysics(), 
                 itemCount: sliderImages.length,
                 itemBuilder: (context, index) {
                   final image = sliderImages[index];
@@ -315,7 +317,7 @@ class _RestaurantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void _launchGoogleMaps() async {
+    void launchGoogleMaps() async {
       final String googleMapsUrl = 'https://www.google.com/maps?q=$latitude,$longitude';
       if (await canLaunch(googleMapsUrl)) {
         await launch(googleMapsUrl);
@@ -371,7 +373,7 @@ class _RestaurantCard extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: TextButton(
-                      onPressed: _launchGoogleMaps,
+                      onPressed: launchGoogleMaps,
                       child: const Text('See Details →'),
                     ),
                   ),

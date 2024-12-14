@@ -1,12 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lohkan_app/article/models/article_entry.dart';
 import 'package:http/http.dart' as http; 
 import 'package:lohkan_app/article/screens/article_detail.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
-
 
 class ArticleScreenAdmin extends StatefulWidget {
   const ArticleScreenAdmin({super.key});
@@ -23,7 +21,7 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
 
   // Fungsi untuk mengambil data dari API
   Future<List<ArticleEntry>> fetchArticles() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/article/json/'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/article/json/'));
     if (response.statusCode == 200) {
       return articleEntryFromJson(response.body);
     } else {
@@ -31,7 +29,7 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
     }
   }
 
-  File? _imageFile;
+    File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
@@ -70,7 +68,6 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
-                  controller: _titleController,
                   decoration: InputDecoration(
                     labelText: 'Title',
                     border: OutlineInputBorder(
@@ -80,7 +77,6 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  controller: _descriptionController,
                   maxLines: 3,
                   decoration: InputDecoration(
                     labelText: 'Description',
@@ -91,9 +87,8 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
                 ),
                 const SizedBox(height: 16),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Change Image'),
-                    const Spacer(),
                     ElevatedButton(
                       onPressed: () {
                         showModalBottomSheet(
@@ -143,6 +138,7 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
               ],
             ),
           ),
+          
           actions: [
             TextButton(
               onPressed: () {
@@ -182,12 +178,26 @@ void _addArticle(BuildContext context) async {
     // Pilih gambar
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      final file = File(pickedFile.path);
+      final fileBytes = await File(pickedFile.path).readAsBytes();
+      final fileName = pickedFile.name;
+
+      // Deteksi tipe file berdasarkan ekstensi
+      String mimeType = '';
+      if (fileName.endsWith('.png')) {
+        mimeType = 'image/png';
+      } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+        mimeType = 'image/jpeg';
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unsupported image format')),
+        );
+        return;
+      }
 
       // Buat MultipartRequest
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://127.0.0.1:8000/article/create-article-flutter/'),
+        Uri.parse('http://10.0.2.2:8000/article/create-article-flutter/'),
       );
 
       // Tambahkan field form
@@ -196,14 +206,22 @@ void _addArticle(BuildContext context) async {
 
       // Tambahkan file gambar
       request.files.add(
-        await http.MultipartFile.fromPath('image', file.path),
+        http.MultipartFile.fromBytes(
+          'image',
+          fileBytes,
+          filename: fileName, // Tambahkan nama file
+          contentType: MediaType.parse(mimeType), // Deteksi tipe file dinamis
+        ),
       );
 
       // Kirim request
       var response = await request.send();
 
       // Tangani response
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Refresh data atau panggil fetchArticles jika diperlukan
+        await fetchArticles(); // Pastikan metode ini ada untuk memuat ulang daftar artikel
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Article added successfully')),
         );
@@ -211,13 +229,27 @@ void _addArticle(BuildContext context) async {
         // Reset state
         _titleController.clear();
         _descriptionController.clear();
+        setState(() {
+          _imageFile = null;
+        });
 
-        // Lakukan refresh data (misalnya memanggil fetchArticles)
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add article: ${response.reasonPhrase}')),
+        // Navigasi ke halaman Articles Page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ArticleScreenAdmin()), // Ganti dengan widget halaman Artikel Anda
         );
       }
+      else {
+        // Tangani jika ada error dari server
+        var responseBody = await response.stream.bytesToString();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add article: ${response.reasonPhrase}, $responseBody')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No image selected')),
+      );
     }
   } catch (e) {
     print('Error adding article: $e');
@@ -227,114 +259,141 @@ void _addArticle(BuildContext context) async {
   }
 }
 
-  // Fungsi untuk menampilkan dialog edit artikel
-  void _showEditArticleDialog(ArticleEntry article) {
-    _titleController.text = article.fields.title;
-    _descriptionController.text = article.fields.description;
+void _showEditArticleDialog(ArticleEntry article) {
+  _titleController.text = article.fields.title;
+  _descriptionController.text = article.fields.description;
+  _imageFile = null; // Reset image file saat dialog dibuka
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Center(
-            child: Text(
-              'Edit Article',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Center(
+          child: Text(
+            'Edit Article',
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: SizedBox(
-            height: 300,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _titleController,
-                  decoration: InputDecoration(
-                    labelText: 'Title',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+        ),
+        content: SizedBox(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _descriptionController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => _pickImage(ImageSource.gallery),
+                child: const Text('Update Image'),
+              ),
+              const SizedBox(height: 8),
+                Text(
+                  _imageFile == null ? 'No File Chosen' : _imageFile!.path.split('/').last,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Color(0xFF800000),
-              ),
-              child: const Text('Cancel'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Reset state
+              _titleController.clear();
+              _descriptionController.clear();
+              setState(() {
+                _imageFile = null;
+              });
+
+              Navigator.of(context).pop(); // Tutup dialog
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Color(0xFF800000),
             ),
-            ElevatedButton(
-              onPressed: () {
-                _updateArticle(article.pk);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-              ),
-              child: const Text('Update'),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _updateArticle(article.pk);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
             ),
-          ],
-        );
-      },
-    );
-  }
+            child: const Text('Update'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   void _updateArticle(String articleId) async {
-  final title = _titleController.text;
-  final description = _descriptionController.text;
+    final title = _titleController.text;
+    final description = _descriptionController.text;
 
-  if (title.isNotEmpty && description.isNotEmpty) {
-    final url = Uri.parse('http://127.0.0.1:8000/article/edit-article/$articleId');
-    var request = http.MultipartRequest('POST', url);
+    if (title.isNotEmpty && description.isNotEmpty) {
+      final url = Uri.parse('http://10.0.2.2:8000/article/edit-article/$articleId');
+      var request = http.MultipartRequest('POST', url);
 
-    // Tambahkan field
-    request.fields['title'] = title;
-    request.fields['description'] = description;
+      request.fields['title'] = title;
+      request.fields['description'] = description;
 
-    try {
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Article updated successfully')),
-        );
-        Navigator.of(context).pop(); // Tutup dialog
-        setState(() {}); // Refresh tampilan
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update article. Status code: ${response.statusCode}')),
+      // Tambahkan gambar jika dipilih
+      if (_imageFile != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'image', 
+            _imageFile!.path,
+            filename: _imageFile!.path.split('/').last
+          )
         );
       }
-    } catch (e) {
+
+      try {
+        var response = await request.send();
+
+        if (response.statusCode == 200 || response.statusCode == 302) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Article updated successfully')),
+          );
+          Navigator.of(context).pop(); // Tutup dialog
+          setState(() {}); // Refresh tampilan
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to update article. Status code: ${response.statusCode}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        const SnackBar(content: Text('Please fill all fields')),
       );
     }
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please fill all fields')),
-    );
   }
-}
+
   void _deleteArticle(String articleId) async {
-  final url = Uri.parse('http://127.0.0.1:8000/article/delete/$articleId');
+  final url = Uri.parse('http://10.0.2.2:8000/article/delete/$articleId');
 
   try {
     final response = await http.delete(url);
@@ -408,6 +467,7 @@ void _addArticle(BuildContext context) async {
               SizedBox(
                 height: 200,
                 child: PageView.builder(
+                  physics: const BouncingScrollPhysics(), 
                   itemCount: slides.length,
                   itemBuilder: (context, index) {
                     final slide = slides[index];
@@ -551,11 +611,15 @@ void _addArticle(BuildContext context) async {
                                       topLeft: Radius.circular(16),
                                       bottomLeft: Radius.circular(16),
                                     ),
-                                    child: Image.network(
-                                      article.fields.image,
-                                      width: MediaQuery.of(context).size.width * 0.3,
-                                      height: 20,
-                                      fit: BoxFit.cover,
+                                    child: Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth: 120, // Tentukan lebar maksimal di sini
+                                      ),
+                                      child: Image.network(
+                                        article.fields.image,
+                                        height: 130,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                   Expanded(

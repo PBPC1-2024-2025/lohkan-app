@@ -16,7 +16,8 @@ class _ArticleScreenState extends State<ArticleScreenUser> {
 
   // Fungsi untuk mengambil data dari API
   Future<List<ArticleEntry>> fetchArticles() async {
-    final response = await http.get(Uri.parse('http://127.0.0.1:8000/article/json/'));
+    // final response = await http.get(Uri.parse('http://127.0.0.1:8000/article/json/'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/article/json/'));
     if (response.statusCode == 200) {
       return articleEntryFromJson(response.body);
     } else {
@@ -209,11 +210,15 @@ class _ArticleScreenState extends State<ArticleScreenUser> {
                                       topLeft: Radius.circular(16),
                                       bottomLeft: Radius.circular(16),
                                     ),
-                                    child: Image.network(
-                                      article.fields.image,
-                                      width: MediaQuery.of(context).size.width * 0.3,
-                                      height: 20,
-                                      fit: BoxFit.cover,
+                                    child: Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth: 120, // Tentukan lebar maksimal di sini
+                                      ),
+                                      child: Image.network(
+                                        article.fields.image,
+                                        height: 130,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                   Expanded(
