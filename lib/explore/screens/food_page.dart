@@ -60,9 +60,10 @@ class _FoodPageState extends State<FoodPage> {
     }
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.white,
           leading: IconButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(false);
             },
             icon: const Icon(Icons.arrow_back),
           ),

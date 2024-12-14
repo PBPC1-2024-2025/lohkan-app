@@ -143,6 +143,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         title: Container(
           width: MediaQuery.of(context).size.width * 0.9,
@@ -255,14 +256,27 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   return const Column(
                     children: [
                       Text(
-                        'Belum ada data food pada lohkan.',
-                        style:
-                            TextStyle(fontSize: 20, color: Color(0xff59A5D8)),
+                        'Belum ada data makanan atau minuman pada lohkan',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
                       ),
                       SizedBox(height: 8),
                     ],
                   );
                 } else {
+                  if (snapshot.data.length == 0) {
+                    return Center(
+                      child: Text(
+                        'Makanan atau minuman tidak ditemukan',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
+                      ),
+                    );
+                  }
                   return AlignedGridView.count(
                     crossAxisCount: 3,
                     mainAxisSpacing: 0,

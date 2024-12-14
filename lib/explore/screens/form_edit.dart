@@ -55,7 +55,7 @@ class _EditFoodFormState extends State<EditFoodForm> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(false);
           },
           icon: const Icon(Icons.arrow_back),
         ),
@@ -328,6 +328,7 @@ class _EditFoodFormState extends State<EditFoodForm> {
                               .showSnackBar(const SnackBar(
                             content: Text("Food successfully edited!"),
                           ));
+                          Navigator.of(context).pop(true);
                           Navigator.of(context).pop(true);
                         } else {
                           ScaffoldMessenger.of(context)
