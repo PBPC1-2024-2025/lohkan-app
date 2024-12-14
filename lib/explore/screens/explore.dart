@@ -119,7 +119,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     Future<List<Food>> fetchFood(CookieRequest request) async {
-      final response = await request.get('http://10.0.2.2/explore/json/');
+      final response = await request.get('http://10.0.2.2:8000/explore/json/');
+      // final response = await request.get('http://127.0.0.1:8000/explore/json/');
 
       // Melakukan decode response menjadi bentuk json
       var data = response;

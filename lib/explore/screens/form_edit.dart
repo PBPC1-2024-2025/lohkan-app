@@ -55,7 +55,7 @@ class _EditFoodFormState extends State<EditFoodForm> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(false);
           },
           icon: const Icon(Icons.arrow_back),
         ),
@@ -312,7 +312,8 @@ class _EditFoodFormState extends State<EditFoodForm> {
                     if (_formKey.currentState!.validate()) {
                       // Kirim ke Django dan tunggu respons
                       final response = await request.postJson(
-                        "http://10.0.2.2/explore/edit-food-flutter/${widget.food.pk}/",
+                        "http://10.0.2.2:8000/explore/edit-food-flutter/${widget.food.pk}/",
+                        // "http://127.0.0.1:8000/explore/edit-food-flutter/${widget.food.pk}/",
                         jsonEncode(<String, String>{
                           'name': _name,
                           'description': _description,
@@ -328,6 +329,7 @@ class _EditFoodFormState extends State<EditFoodForm> {
                               .showSnackBar(const SnackBar(
                             content: Text("Food successfully edited!"),
                           ));
+                          Navigator.of(context).pop(true);
                           Navigator.of(context).pop(true);
                         } else {
                           ScaffoldMessenger.of(context)
