@@ -294,6 +294,8 @@ class _AddFoodFormState extends State<AddFoodForm> {
                       // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
                       final response = await request.postJson(
                         "http://10.0.2.2/explore/add-food-flutter/",
+                        // "http://127.0.0.1:8000/explore/add-food-flutter/",
+
                         jsonEncode(<String, String>{
                           'name': _name,
                           'description': _description,
