@@ -50,6 +50,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       print('Response from Django: $response');
 
       if (response != null && response['status'] == 'success') {
+        
         widget.onRecipeAdded?.call();
 
         ScaffoldMessenger.of(context).showSnackBar(

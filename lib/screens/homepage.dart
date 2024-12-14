@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
     const Center(child: Text('Home Page')), // Halaman Home
     const Center(child: Text('Explore Page')), // Halaman Explore
     const Center(child: Text('Food Review Page')), // Halaman Food Review
-    const AskRecipeScreen(), // Halaman Ask Recipe
+     AskRecipeScreen(username: widget.username), 
     const ArticleScreen(), // Halaman Article
     // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI 
   ];

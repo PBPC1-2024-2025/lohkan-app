@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:lohkan_app/ask_recipe/screens/chat.dart';
+import 'package:lohkan_app/ask_recipe/screens/chat_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:lohkan_app/ask_recipe/screens/create_recipe.dart';
@@ -9,8 +9,9 @@ import 'package:lohkan_app/ask_recipe/models/recipe_entry.dart';
 import 'package:lohkan_app/ask_recipe/screens/view_recipe.dart';
 
 class AskRecipeScreen extends StatefulWidget {
-  const AskRecipeScreen({super.key});
-
+  final String username;
+  const AskRecipeScreen({Key? key, required this.username}) : super(key: key);
+  
   @override
   State<AskRecipeScreen> createState() => _AskRecipeScreenState();
 }
@@ -177,6 +178,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                         itemBuilder: (context, index) {
                           final recipe = filteredRecipes[index];
                           final String recipeId = recipe.pk; // No need to parse to int
+                           final String groupId = recipe.fields.group;  // Make sure this field exists in your model
 
                           return _buildRecipeGroup(
                             title: recipe.fields.title,
@@ -186,6 +188,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                             cookingTime: recipe.fields.cookingTime,
                             servings: recipe.fields.servings,
                             recipeId: recipeId, // Pass UUID directly as string
+                            groupId: groupId,
                           );
                         },
                       );
@@ -208,6 +211,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
     required int cookingTime,
     required int servings,
     required String recipeId,
+    required String groupId,
   }) {
     return Dismissible(
       key: Key(recipeId),
@@ -262,10 +266,14 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
         child: ElevatedButton(
           onPressed: () {
             Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                     builder: (context) => ChatScreen(title: title),
-                )
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                  groupId: groupId, 
+                  groupName: title,
+                  currentUserName: widget.username,
+                ),
+              ),
             );
           },
           style: ElevatedButton.styleFrom(
