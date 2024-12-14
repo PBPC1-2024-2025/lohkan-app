@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:lohkan_app/article/screens/articles.dart';
 import 'package:lohkan_app/article/screens/articles_user.dart'; 
 import 'package:lohkan_app/ask_recipe/screens/ask_recipe.dart';
+import 'package:lohkan_app/explore/screens/explore.dart';
 
 class HomePage extends StatefulWidget {
   final String username;
@@ -20,20 +21,22 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
   // Daftar halaman untuk navigasi BottomNavigationBar
-  late List<Widget> _pages;
+late List<Widget> _pages;
 
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      const Center(child: Text('Home Page')), // Halaman Home
-      const Center(child: Text('Explore Page')), // Halaman Explore
-      const Center(child: Text('Food Review Page')), // Halaman Food Review
-      const AskRecipeScreen(), // Halaman Ask Recipe
-      widget.username == 'admin' ? const ArticleScreenAdmin() : ArticleScreenUser(), // Halaman Article
-      // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI 
-    ];
-  }
+@override
+void initState() {
+  super.initState();
+  _pages = [
+    const Center(child: Text('Home Page')), // Halaman Home
+    ExploreScreen(username: widget.username), // Halaman Explore
+    const Center(child: Text('Food Review Page')), // Halaman Food Review
+    const AskRecipeScreen(), // Halaman Ask Recipe
+    widget.username == 'admin' 
+        ? const ArticleScreenAdmin() 
+        : const ArticleScreenUser(), // Halaman Article dengan pengecekan username
+    // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI
+  ];
+}
   
 
   void _onTabTapped(int index) {
@@ -45,79 +48,86 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Row(
-          children: [
-            Transform.translate(
-              offset: const Offset(-5, 0),
-              child: Image.asset(
-                'assets/logo.png',
-                height: 20,
+      appBar: _currentIndex == 1
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white,
+              elevation: 0,
+              title: Row(
+                children: [
+                  Transform.translate(
+                    offset: const Offset(-5, 0),
+                    child: Image.asset(
+                      'assets/logo.png',
+                      height: 20,
+                    ),
+                  ),
+                  const Spacer(),
+                ],
               ),
-            ),
-            const Spacer(),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.account_circle,
-              color: Colors.grey,
-            ),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.bookmark,
-              color: Color(0xFF800000),
-            ),
-            onPressed: () {
-              setState(() {
-                _currentIndex = 0; // ini tolong diganti ke page nya ABHI ya (buat abhi)
-              });
-            },
-          ),
-          IconButton(
-            icon: const Icon(
-              Icons.logout,
-              color: Colors.grey,
-            ),
-            onPressed: () async {
-              final request = context.read<CookieRequest>(); // Ambil instance CookieRequest
-              // final response = await request.logout("http://127.0.0.1:8000/auth/logout/"); // Endpoint logout
-              final response = await request.logout("http://10.0.2.2:8000/auth/logout/"); // Endpoint logout
+              actions: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.account_circle,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {},
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.bookmark,
+                    color: Color(0xFF800000),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _currentIndex =
+                          0; // ini tolong diganti ke page nya ABHI ya (buat abhi)
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.logout,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () async {
+                    final request = context
+                        .read<CookieRequest>(); // Ambil instance CookieRequest
+                    final response = await request.logout(
+                        "http://127.0.0.1:8000/auth/logout/"); // Endpoint logout
 
-              if (context.mounted) { // Pastikan context masih tersedia
-                if (response['status']) { // Logout berhasil
-                  String uname = response['username'];
-                  String message = response['message'];
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("$message Sampai jumpa, $uname."),
-                    ),
-                  );
-                  // Navigasi ke halaman login
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()), // Sesuaikan dengan halaman login Anda
-                  );
-                  
-                } else { // Logout gagal
-                String message = response['message'];
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                    ),
-                  );
-                }
-              }
-            },
-
-          ),
-        ],
-      ),
+                    if (context.mounted) {
+                      // Pastikan context masih tersedia
+                      if (response['status']) {
+                        // Logout berhasil
+                        String uname = response['username'];
+                        String message = response['message'];
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("$message Sampai jumpa, $uname."),
+                          ),
+                        );
+                        // Navigasi ke halaman login
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const LoginPage()), // Sesuaikan dengan halaman login Anda
+                        );
+                      } else {
+                        // Logout gagal
+                        String message = response['message'];
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(message),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
       body: _currentIndex == 0 ? _buildHomePage() : _pages[_currentIndex],
       bottomNavigationBar: Stack(
         clipBehavior: Clip.none,
@@ -170,9 +180,11 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            Text(
-              'Welcome Back, ${widget.username}!',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Welcome Back, ${widget.username}!',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             SizedBox(
               height: 200,
@@ -197,7 +209,8 @@ class _HomePageState extends State<HomePage> {
                         top: 10,
                         left: 10,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.6),
                             borderRadius: BorderRadius.circular(5),
@@ -239,7 +252,10 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 20),
             Text(
               'Best Restaurant',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             const _RestaurantCard(
@@ -284,7 +300,11 @@ class _IconText extends StatelessWidget {
 
     return Column(
       children: [
-        Icon(icon, size: 40, color: Color(0xFF800000),),
+        Icon(
+          icon,
+          size: 40,
+          color: Color(0xFF800000),
+        ),
         const SizedBox(height: 5),
         Column(
           children: words.map((word) {
@@ -309,7 +329,7 @@ class _RestaurantCard extends StatelessWidget {
 
   const _RestaurantCard({
     required this.name,
-    required this.imagePath, 
+    required this.imagePath,
     required this.location,
     required this.latitude,
     required this.longitude,
@@ -355,11 +375,14 @@ class _RestaurantCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Color(0xFF800000),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Color(0xFF800000),),
+                      border: Border.all(
+                        color: Color(0xFF800000),
+                      ),
                     ),
                     child: Text(
                       location,
@@ -386,4 +409,3 @@ class _RestaurantCard extends StatelessWidget {
     );
   }
 }
-
