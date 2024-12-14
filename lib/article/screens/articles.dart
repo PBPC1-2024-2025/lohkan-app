@@ -690,8 +690,11 @@ void _showEditArticleDialog(ArticleEntry article) {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddArticleDialog,
-        backgroundColor: Color(0xFF800000),
-        child: const Icon(Icons.add),
+        backgroundColor: Color(0xFF550000),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white, // Atur warna ikon menjadi putih
+        ),
       ),
     );
   }
