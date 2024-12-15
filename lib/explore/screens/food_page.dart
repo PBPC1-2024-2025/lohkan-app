@@ -68,7 +68,7 @@ class _FoodPageState extends State<FoodPage> {
             icon: const Icon(Icons.arrow_back),
           ),
           titleSpacing: 0,
-          title: Container(
+          title: SizedBox(
             width: MediaQuery.of(context).size.width * 1,
             child: const Row(
               children: [
@@ -275,7 +275,7 @@ class _FoodPageState extends State<FoodPage> {
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: const [
                           BoxShadow(
-                            color: const Color(0x66696969),
+                            color: Color(0x66696969),
                             spreadRadius: 0,
                             blurRadius: 3,
                             offset: Offset(0, 2),

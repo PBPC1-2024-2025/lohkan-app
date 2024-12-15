@@ -125,10 +125,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: be325344c1f3070354a1d84a231a1ba75ea85d413774ec4bdf444c023342e030
+      sha256: "89500471922dd3a89ab0d6e13ab4a2268c25474bff4ca7c628f55c76e0ced1de"
       url: "https://pub.dev"
     source: hosted
-    version: "5.5.0"
+    version: "8.1.5"
   file_selector_linux:
     dependency: transitive
     description:
@@ -334,7 +334,7 @@ packages:
     source: hosted
     version: "0.2.1+1"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf

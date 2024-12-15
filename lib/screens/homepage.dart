@@ -5,7 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lohkan_app/article/screens/articles.dart';
 import 'package:lohkan_app/article/screens/articles_user.dart'; 
-import 'package:lohkan_app/ask_recipe/screens/ask_recipe.dart';
+import 'package:lohkan_app/ask_recipe/screens/ask_recipe_user.dart';
+import 'package:lohkan_app/ask_recipe/screens/ask_recipe_admin.dart';
 import 'package:lohkan_app/explore/screens/explore.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,7 +31,9 @@ void initState() {
     const Center(child: Text('Home Page')), // Halaman Home
     ExploreScreen(username: widget.username), // Halaman Explore
     const Center(child: Text('Food Review Page')), // Halaman Food Review
-    const AskRecipeScreen(), // Halaman Ask Recipe
+    widget.username == 'admin' 
+        ? AskRecipeScreenAdmin(username: widget.username) 
+        : AskRecipeScreenUser(username: widget.username), 
     widget.username == 'admin' 
         ? const ArticleScreenAdmin() 
         : const ArticleScreenUser(), // Halaman Article dengan pengecekan username

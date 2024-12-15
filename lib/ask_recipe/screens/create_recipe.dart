@@ -1,7 +1,10 @@
-import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class CreateRecipeScreen extends StatefulWidget {
   final Function()? onRecipeAdded;
@@ -19,7 +22,58 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   final _cookingTimeController = TextEditingController();
   final _servingsController = TextEditingController();
 
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+
   String? _errorMessage;
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      final imagePath = pickedFile.path;
+      if (await File(imagePath).exists()) {
+        setState(() {
+          _image = File(imagePath);
+        });
+      } else {
+        print('File not found: $imagePath');
+      }
+    } else {
+      print('No image selected.');
+    }
+  }
+
+  void _showImagePickerModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context); // Tutup modal
+                  _pickImage(ImageSource.camera); // Ambil gambar dari kamera
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context); // Tutup modal
+                  _pickImage(ImageSource.gallery); // Ambil gambar dari galeri
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _createRecipe(CookieRequest request) async {
     final url = 'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/create_recipe_flutter/';
@@ -35,31 +89,65 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     }
 
     try {
-      final response = await request.postJson(
-        url,
-        jsonEncode({
-          'title': _titleController.text,
-          'ingredients': _ingredientsController.text,
-          'instructions': _instructionsController.text,
-          'cooking_time': cookingTime,
-          'servings': servings,
-        }),
-      );
+      // Buat MultipartRequest
+      var request = http.MultipartRequest('POST', Uri.parse(url));
 
-      if (!mounted) return;
-      print('Response from Django: $response');
+      // Tambahkan field teks
+      request.fields['title'] = _titleController.text;
+      request.fields['ingredients'] = _ingredientsController.text;
+      request.fields['instructions'] = _instructionsController.text;
+      request.fields['cooking_time'] = cookingTime.toString();
+      request.fields['servings'] = servings.toString();
 
-      if (response != null && response['status'] == 'success') {
+      // Tambahkan gambar jika dipilih
+      if (_image != null) {
+        // Baca file gambar sebagai byte array
+        final imageBytes = await _image!.readAsBytes();
+        final fileName = _image!.path.split('/').last; // Ambil nama file
+
+        // Deteksi tipe file berdasarkan ekstensi
+        String mimeType = '';
+        if (fileName.endsWith('.png')) {
+          mimeType = 'image/png';
+        } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
+          mimeType = 'image/jpeg';
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Unsupported image format')),
+          );
+          return;
+        }
+
+        // Tambahkan file gambar sebagai byte array
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image', // Field name (harus sesuai dengan yang diharapkan server)
+            imageBytes, // Byte array dari gambar
+            filename: fileName, // Nama file
+            contentType: MediaType.parse(mimeType), // Tipe file
+          ),
+        );
+      }
+
+      // Kirim request
+      var response = await request.send();
+
+      // Tangani response
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (!mounted) return;
+
         widget.onRecipeAdded?.call();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'])),
+          const SnackBar(content: Text('Recipe created successfully')),
         );
         Navigator.of(context).pop();
       } else {
-        setState(() {
-          _errorMessage = response['error'] ?? 'Failed to create recipe';
-        });
+        // Tangani jika ada error dari server
+        var responseBody = await response.stream.bytesToString();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create recipe: ${response.reasonPhrase}, $responseBody')),
+        );
       }
     } catch (e) {
       setState(() {
@@ -112,7 +200,9 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
               _buildTextField('Cooking Time', _cookingTimeController),
               SizedBox(height: 10),
               _buildTextField('Servings', _servingsController),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
+              _buildImagePicker(context),
+              SizedBox(height: 10),
               if (_errorMessage != null) 
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
@@ -143,21 +233,60 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
   }
 
-  // New method for multiline text fields
   Widget _buildMultilineTextField(String hint, TextEditingController controller) {
     return TextField(
       controller: controller,
-      maxLines: null, // Allows unlimited lines
-      minLines: 3, // Minimum height of 3 lines
+      maxLines: null,
+      minLines: 3,
       decoration: InputDecoration(
         labelText: hint,
         labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
         ),
-        alignLabelWithHint: true, // Aligns the label with the input text
+        alignLabelWithHint: true,
       ),
       style: TextStyle(fontSize: 18),
+    );
+  }
+
+  Widget _buildImagePicker(BuildContext context) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () => _showImagePickerModal(context),
+          child: Container(
+            width: double.infinity,
+            height: 55, 
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey[600]!, // Warna border yang lebih gelap
+                width: 1.0,
+              ),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: _image != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Image.file(
+                      _image!, // Pastikan _image tidak null
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: 55,
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.add_a_photo),
+                      SizedBox(width: 10),
+                      Text('Add a photo'),
+                    ],
+                  ),
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
     );
   }
 
@@ -170,8 +299,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
             Navigator.of(context).pop();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF550000), // Dark red background for cancel
-            foregroundColor: Colors.white, // White text
+            backgroundColor: Color(0xFF550000),
+            foregroundColor: Colors.white,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
           child: Text('Cancel'),
@@ -193,8 +322,8 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black, // Black background for save
-            foregroundColor: Colors.white, // White text
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
           child: Text("Save"),

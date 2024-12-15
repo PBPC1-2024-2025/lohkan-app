@@ -1,21 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:lohkan_app/ask_recipe/screens/chat.dart';
+import 'package:lohkan_app/ask_recipe/screens/chat_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:lohkan_app/ask_recipe/screens/create_recipe.dart';
 import 'package:lohkan_app/ask_recipe/models/recipe_entry.dart';
 import 'package:lohkan_app/ask_recipe/screens/view_recipe.dart';
 
-class AskRecipeScreen extends StatefulWidget {
-  const AskRecipeScreen({super.key});
-
+class AskRecipeScreenAdmin extends StatefulWidget {
+  final String username;
+  final bool isAdmin;
+  const AskRecipeScreenAdmin({super.key, required this.username, this.isAdmin = true});
+  
   @override
-  State<AskRecipeScreen> createState() => _AskRecipeScreenState();
+  State<AskRecipeScreenAdmin> createState() => _AskRecipeScreenAdminState();
 }
 
-class _AskRecipeScreenState extends State<AskRecipeScreen> {
+class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
   late Future<List<AskRecipeEntry>> _recipesFuture;
   String searchQuery = ''; // Menyimpan kata kunci pencarian
 
@@ -23,15 +25,15 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
     final String apiUrl = 'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/json/';
 
     try {
-      final response = await request.get(apiUrl);
-      if (response is List) {
-        return List<AskRecipeEntry>.from(
-            response.map((x) => AskRecipeEntry.fromJson(x)));
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as List;
+        return data.map((json) => AskRecipeEntry.fromJson(json)).toList();
       } else {
-        throw Exception('Invalid data format');
+        throw Exception('Failed to load recipes');
       }
     } catch (e) {
-      throw Exception('Failed to load recipes: $e');
+      throw Exception('Error fetching recipes: $e');
     }
   }
 
@@ -177,6 +179,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                         itemBuilder: (context, index) {
                           final recipe = filteredRecipes[index];
                           final String recipeId = recipe.pk; // No need to parse to int
+                           final String groupId = recipe.fields.group;  // Make sure this field exists in your model
 
                           return _buildRecipeGroup(
                             title: recipe.fields.title,
@@ -186,6 +189,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                             cookingTime: recipe.fields.cookingTime,
                             servings: recipe.fields.servings,
                             recipeId: recipeId, // Pass UUID directly as string
+                            groupId: groupId,
                           );
                         },
                       );
@@ -208,6 +212,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
     required int cookingTime,
     required int servings,
     required String recipeId,
+    required String groupId,
   }) {
     return Dismissible(
       key: Key(recipeId),
@@ -262,10 +267,14 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
         child: ElevatedButton(
           onPressed: () {
             Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                     builder: (context) => ChatScreen(title: title),
-                )
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatScreen(
+                  groupId: groupId, 
+                  groupName: title,
+                  currentUserName: widget.username,
+                ),
+              ),
             );
           },
           style: ElevatedButton.styleFrom(
@@ -317,6 +326,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
                         cookingTime: cookingTime,
                         servings: servings,
                         recipeId: recipeId,
+                        isAdmin: widget.isAdmin,
                         onRecipeUpdated: _refreshRecipes,
                       ),
                     ),
