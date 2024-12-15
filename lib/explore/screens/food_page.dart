@@ -60,9 +60,10 @@ class _FoodPageState extends State<FoodPage> {
     }
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.white,
           leading: IconButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(false);
             },
             icon: const Icon(Icons.arrow_back),
           ),
@@ -123,7 +124,7 @@ class _FoodPageState extends State<FoodPage> {
                           );
                           if (confirmDelete) {
                             final response = await request.postJson(
-                              "http://10.0.2.2/explore/delete-food-flutter/${widget.food.pk}/",
+                              "http://10.0.2.2:8000/explore/delete-food-flutter/${widget.food.pk}/",
                               jsonEncode(
                                 <String, String>{
                                   'delete': 'yes',

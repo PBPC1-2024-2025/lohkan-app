@@ -41,6 +41,9 @@ class MyApp extends StatelessWidget {
           buttonTheme: ButtonThemeData(
             buttonColor: Color(0xFFFF8000), 
           ),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            shape: CircleBorder(), // Pastikan bentuk bulat
+          ),
         ),
         home: const LoginPage(), 
       )

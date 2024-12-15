@@ -53,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, 
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Spacer(flex: 3),
             // Gambar di bagian atas
@@ -118,8 +118,9 @@ class _LoginPageState extends State<LoginPage> {
                   String password = _passwordController.text;
 
                   // Proses login
-                  final response = await request
-                      .login("http://10.0.2.2:8000/auth/login/", {
+                  final response =
+                      await request.login("http://10.0.2.2:8000/auth/login/", {
+                    // .login("http://127.0.0.1:8000/auth/login/", {
                     'username': username,
                     'password': password,
                   });
@@ -193,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
                       text: 'SIGN UP', // Teks tebal dan warna merah
                       style: TextStyle(
                         fontWeight: FontWeight.bold, // Membuat tebal
-                        color: Color(0xFF800000),    // Warna merah
+                        color: Color(0xFF800000), // Warna merah
                       ),
                     ),
                   ],
