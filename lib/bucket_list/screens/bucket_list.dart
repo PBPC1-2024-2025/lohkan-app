@@ -3,6 +3,7 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:lohkan_app/bucket_list/components/food_item_card.dart';
 import 'package:lohkan_app/bucket_list/models/bucketlist_entry.dart';
+import 'package:lohkan_app/explore/models/food.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
