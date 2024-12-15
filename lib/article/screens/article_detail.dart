@@ -1,22 +1,21 @@
-// TODO : 
-// masih belum bisa di nampilin dan kirim comment
 import 'package:flutter/material.dart'; 
-import 'dart:convert'; // Untuk mengelola JSON
-import 'package:http/http.dart' as http; // Untuk melakukan request HTTP
+import 'dart:convert';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 class ArticleDetailPage extends StatefulWidget {
-  final String articleId; // ID artikel untuk mengambil data dari database
+  final String articleId;
   final String title;
   final String image;
   final String description;
 
   const ArticleDetailPage({
-    Key? key,
+    super.key,
     required this.articleId,
     required this.title,
     required this.image,
     required this.description,
-  }) : super(key: key);
+  });
 
   @override
   State<ArticleDetailPage> createState() => _ArticleDetailPage();
@@ -33,37 +32,62 @@ class _ArticleDetailPage extends State<ArticleDetailPage> {
   }
 
   // Fungsi untuk mengambil komentar dari database JSON
-  Future<void> _fetchComments() async {
-    final url = Uri.parse('https://example.com/api/articles/${widget.articleId}/comments'); // Ganti dengan URL API
-    final response = await http.get(url);
+Future<void> _fetchComments() async {
+  final request = Provider.of<CookieRequest>(context, listen: false);
 
-    if (response.statusCode == 200) {
-      setState(() {
-        comments = json.decode(response.body); // Parse JSON dan simpan di state
-      });
+  try {
+    // final response = await request.get('http://127.0.0.1:8000/article/json/');
+    final response = await request.get('http://10.0.2.2:8000/article/json/');
+
+    if (response != null) {
+      List<dynamic> jsonResponse = response;
+      
+      // Find the specific article that matches the ID
+      var articleData = jsonResponse.firstWhere(
+        (article) => article['pk'] == widget.articleId,
+        orElse: () => null,
+      );
+
+      if (articleData != null) {
+        setState(() {
+          // Extract comments from the article's fields
+          comments = (articleData['fields']['comments'] as List).map((commentData) => {
+            'id': commentData['id'],
+            'user': commentData['user'] ?? 'Anonymous',
+            'content': commentData['content'],
+            'created_at': commentData['created_at']
+          }).toList();
+        });
+      }
     } else {
-      // Jika gagal mengambil data
-      print('Failed to load comments: ${response.statusCode}');
+      print('Failed to load article');
     }
+  } catch (e) {
+    print('Error fetching article: $e');
   }
+}
 
-  // Fungsi untuk menambah komentar baru ke database
-  Future<void> _addComment(String content) async {
-    final url = Uri.parse('https://example.com/api/articles/${widget.articleId}/comments'); // Ganti dengan URL API
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'content': content}), // Data yang dikirimkan ke database
-    );
+    // Fungsi untuk menambah komentar baru ke database
+    Future<void> _addComment(String content) async {
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      try {
+        final response = await request.postJson(
+        'http://10.0.2.2:8000/article/article/${widget.articleId}/add_comment_flutter/', 
 
-    if (response.statusCode == 201) {
-      // Jika berhasil ditambahkan, refresh komentar
-      _fetchComments();
-    } else {
-      // Jika gagal menyimpan
-      print('Failed to add comment: ${response.statusCode}');
+        jsonEncode(<String, String>{
+                'article_id': widget.articleId,  
+                'content': content, 
+        }));
+        
+        _fetchComments(); // Refresh daftar komentar
+    } catch (e) {
+      print('Error adding comment: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $e')),
+      );
     }
-  }
+}
+
 
   @override
   Widget build(BuildContext context) {

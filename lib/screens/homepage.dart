@@ -6,6 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:lohkan_app/article/screens/articles.dart';
 import 'package:lohkan_app/bucket_list/screens/bucket_list.dart';
 
+import 'package:lohkan_app/article/screens/articles_user.dart'; 
+import 'package:lohkan_app/ask_recipe/screens/ask_recipe.dart';
 import 'package:lohkan_app/explore/screens/explore.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,14 +24,23 @@ class _HomePageState extends State<HomePage> {
   bool _showBucketList = false;
 
   // Daftar halaman untuk navigasi BottomNavigationBar
-  List<Widget> get _pages => [
+late List<Widget> _pages;
+
+@override
+void initState() {
+  super.initState();
+  _pages = [
     const Center(child: Text('Home Page')), // Halaman Home
     ExploreScreen(username: widget.username), // Halaman Explore
     const Center(child: Text('Food Review Page')), // Halaman Food Review
-    const Center(child: Text('Ask Recipe Page')), // Halaman Ask Recipe
-    const ArticleScreen(), // Halaman Article
+    const AskRecipeScreen(), // Halaman Ask Recipe
+    widget.username == 'admin' 
+        ? const ArticleScreenAdmin() 
+        : const ArticleScreenUser(), // Halaman Article dengan pengecekan username
     const BucketListScreen(),
   ];
+}
+  
 
   void _onTabTapped(int index) {
     setState(() {
@@ -189,6 +200,7 @@ class _HomePageState extends State<HomePage> {
             SizedBox(
               height: 200,
               child: PageView.builder(
+                physics: const BouncingScrollPhysics(), 
                 itemCount: sliderImages.length,
                 itemBuilder: (context, index) {
                   final image = sliderImages[index];
@@ -336,9 +348,8 @@ class _RestaurantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void _launchGoogleMaps() async {
-      final String googleMapsUrl =
-          'https://www.google.com/maps?q=$latitude,$longitude';
+    void launchGoogleMaps() async {
+      final String googleMapsUrl = 'https://www.google.com/maps?q=$latitude,$longitude';
       if (await canLaunch(googleMapsUrl)) {
         await launch(googleMapsUrl);
       } else {
@@ -396,7 +407,7 @@ class _RestaurantCard extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: TextButton(
-                      onPressed: _launchGoogleMaps,
+                      onPressed: launchGoogleMaps,
                       child: const Text('See Details →'),
                     ),
                   ),

@@ -119,8 +119,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     Future<List<Food>> fetchFood(CookieRequest request) async {
-      final response = await request.get('http://10.0.2.2/explore/json/');
-      // final response = await request.get('http://127.0.0.1:8000/explore/json/');
+      final response = await request.get('http://10.0.2.2:8000/explore/json/');
 
       // Melakukan decode response menjadi bentuk json
       var data = response;
@@ -144,6 +143,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         title: Container(
           width: MediaQuery.of(context).size.width * 0.9,
@@ -256,14 +256,27 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   return const Column(
                     children: [
                       Text(
-                        'Belum ada data food pada lohkan.',
-                        style:
-                            TextStyle(fontSize: 20, color: Color(0xff59A5D8)),
+                        'Belum ada data makanan atau minuman pada lohkan',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
                       ),
                       SizedBox(height: 8),
                     ],
                   );
                 } else {
+                  if (snapshot.data.length == 0) {
+                    return Center(
+                      child: Text(
+                        'Makanan atau minuman tidak ditemukan',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
+                      ),
+                    );
+                  }
                   return AlignedGridView.count(
                     crossAxisCount: 3,
                     mainAxisSpacing: 0,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:lohkan_app/screens/homepage.dart'; 
+import 'package:lohkan_app/screens/homepage.dart';
 import 'package:lohkan_app/authentication/screens/register.dart';
 
 void main() {
@@ -42,73 +42,85 @@ class _LoginPageState extends State<LoginPage> {
     final request = context.watch<CookieRequest>();
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Colors.white, Color(0xFFE5E5E5)],
-            ),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Color(0xFFE5E5E5)],
           ),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              // Gambar sebelah kiri (gambar karakter)
-              Image.asset(
-                'assets/login.png', 
-                height: 200,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(flex: 3),
+            // Gambar di bagian atas
+            Image.asset(
+              'assets/login.png',
+              height: 200,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'LOGIN',
+              style: TextStyle(
+                fontSize: 32.0,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF800000),
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'LOGIN',
-                style: TextStyle(
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF800000),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Please Sign In to continue',
-                style: TextStyle(fontSize: 16.0, color: Colors.grey),
-              ),
-              const SizedBox(height: 30),
-              // Form input untuk username dan password
-              TextField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  labelText: 'Username',
-                  hintText: 'Enter your username',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Please Sign In to continue',
+              style: TextStyle(fontSize: 16.0, color: Colors.grey),
+            ),
+            const SizedBox(height: 30),
+            // Form input username dan password
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      hintText: 'Enter your username',
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 18.0),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  hintText: 'Enter your password',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  const SizedBox(height: 18.0),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                      prefixIcon: Icon(Icons.lock),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                      ),
+                    ),
+                    obscureText: true,
                   ),
-                ),
-                obscureText: true,
+                ],
               ),
-              const SizedBox(height: 30.0),
-              ElevatedButton(
+            ),
+            const SizedBox(height: 30.0),
+            // Tombol login
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ElevatedButton(
                 onPressed: () async {
                   String username = _usernameController.text;
                   String password = _passwordController.text;
 
                   // Proses login
-                  final response = await request
-                      .login("http://127.0.0.1:8000/auth/login/", {
+                  final response =
+                      await request.login("http://10.0.2.2:8000/auth/login/", {
+                    // .login("http://127.0.0.1:8000/auth/login/", {
                     'username': username,
                     'password': password,
                   });
@@ -116,11 +128,13 @@ class _LoginPageState extends State<LoginPage> {
                   if (request.loggedIn) {
                     String message = response['message'];
                     String uname = response['username'];
-                    
+
                     if (context.mounted) {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => HomePage(username: uname)),
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(username: uname),
+                        ),
                       );
                       ScaffoldMessenger.of(context)
                         ..hideCurrentSnackBar()
@@ -152,32 +166,44 @@ class _LoginPageState extends State<LoginPage> {
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  minimumSize: Size(double.infinity, 50),
-                  backgroundColor: Color(0xFF800000),
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: const Color(0xFF800000),
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                 ),
                 child: const Text('LOGIN'),
               ),
-              const SizedBox(height: 40.0),
-              GestureDetector(
-                onTap: () {
-                  // Ganti dengan navigasi ke halaman Sign Up
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const RegisterPage()),
-                  );
-                },
-                child: Text(
-                  'Didn’t have account? Sign Up',
+            ),
+            const SizedBox(height: 40.0),
+            // Teks navigasi ke register
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterPage()),
+                );
+              },
+              child: const Text.rich(
+                TextSpan(
+                  text: 'Didn’t have account? ', // Teks dengan warna hitam
                   style: TextStyle(
-                    color: Color(0xFF800000),
+                    color: Colors.black, // Warna hitam
                     fontSize: 16.0,
                   ),
+                  children: [
+                    TextSpan(
+                      text: 'SIGN UP', // Teks tebal dan warna merah
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold, // Membuat tebal
+                        color: Color(0xFF800000), // Warna merah
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+
+            const Spacer(flex: 2),
+          ],
         ),
       ),
     );

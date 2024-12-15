@@ -79,4 +79,5 @@ Para Foodies memiliki role sebagai user yang dapat melihat berbagai produk yang 
 ## <summary><strong>Berita Acara Kelompok C01</strong></summary>
 <p> Berita acara kelompok CO1 dapat diakses pada link berikut <a href="https://docs.google.com/spreadsheets/d/1PTfbKL2_vmzfagNTIhkKrnzzTK4m1F3I/edit?gid=1978216498#gid=1978216498" target="_blank">ini</a> 
 
-
+## <summary><strong>Link Design</strong></summary>
+https://www.figma.com/design/hyw1YqYThyIRcNes0k746g/Lohkan-APP?node-id=0-1&node-type=canvas&t=iVtYVtdc9cx1Usni-0
