@@ -124,7 +124,7 @@ class _FoodPageState extends State<FoodPage> {
                           );
                           if (confirmDelete) {
                             final response = await request.postJson(
-                              "http://10.0.2.2:8000/explore/delete-food-flutter/${widget.food.pk}/",
+                              "http://marla-marlena-lohkan.pbp.cs.ui.ac.id/explore/delete-food-flutter/${widget.food.pk}/",
                               jsonEncode(
                                 <String, String>{
                                   'delete': 'yes',

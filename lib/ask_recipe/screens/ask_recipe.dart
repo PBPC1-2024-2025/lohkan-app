@@ -20,7 +20,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
   String searchQuery = ''; // Menyimpan kata kunci pencarian
 
   Future<List<AskRecipeEntry>> _fetchRecipes(CookieRequest request) async {
-    final String apiUrl = 'http://127.0.0.1:8000/ask_recipe/json/';
+    final String apiUrl = 'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/json/';
 
     try {
       final response = await request.get(apiUrl);
@@ -337,7 +337,7 @@ class _AskRecipeScreenState extends State<AskRecipeScreen> {
 
   // Add this method to your _AskRecipeScreenState class
   Future<void> _deleteRecipe(String recipeId) async {
-    final url = Uri.parse('http://127.0.0.1:8000/ask_recipe/delete_recipe/$recipeId/');
+    final url = Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/delete_recipe/$recipeId/');
 
     try {
       final response = await http.delete(

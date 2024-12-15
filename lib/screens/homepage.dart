@@ -94,7 +94,7 @@ void initState() {
                     final request = context
                         .read<CookieRequest>(); // Ambil instance CookieRequest
                     final response = await request.logout(
-                        "http://127.0.0.1:8000/auth/logout/"); // Endpoint logout
+                        "http://marla-marlena-lohkan.pbp.cs.ui.ac.id/auth/logout/"); // Endpoint logout
 
                     if (context.mounted) {
                       // Pastikan context masih tersedia

@@ -293,7 +293,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
                       // Kirim ke Django dan tunggu respons
                       // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
                       final response = await request.postJson(
-                        "http://10.0.2.2:8000/explore/add-food-flutter/",
+                        "http://marla-marlena-lohkan.pbp.cs.ui.ac.id/explore/add-food-flutter/",
                         jsonEncode(<String, String>{
                           'name': _name,
                           'description': _description,

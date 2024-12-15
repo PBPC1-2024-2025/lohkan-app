@@ -22,7 +22,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   String? _errorMessage;
 
   Future<void> _createRecipe(CookieRequest request) async {
-    final url = 'http://127.0.0.1:8000/ask_recipe/create_recipe_flutter/';
+    final url = 'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/create_recipe_flutter/';
 
     final cookingTime = int.tryParse(_cookingTimeController.text);
     final servings = int.tryParse(_servingsController.text);

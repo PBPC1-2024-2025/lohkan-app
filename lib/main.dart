@@ -21,14 +21,14 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'LohKan',
         theme: ThemeData(
-          primaryColor: Color(0xFFFF8000), 
+          primaryColor: Colors.white,
           scaffoldBackgroundColor: Colors.white, 
           inputDecorationTheme: InputDecorationTheme(
             fillColor: Colors.grey.shade100, 
           ),
           appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFFFF8000),
-            surfaceTintColor: Color(0xFFFF8000),
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
           ),
           bottomSheetTheme: const BottomSheetThemeData(
             backgroundColor: Colors.white, 
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
             surfaceTintColor: Colors.white,
           ),
           buttonTheme: ButtonThemeData(
-            buttonColor: Color(0xFFFF8000), 
+            buttonColor: Color(0xFF550000), 
           ),
           floatingActionButtonTheme: FloatingActionButtonThemeData(
             shape: CircleBorder(), // Pastikan bentuk bulat

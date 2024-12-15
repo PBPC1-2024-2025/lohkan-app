@@ -312,7 +312,7 @@ class _EditFoodFormState extends State<EditFoodForm> {
                     if (_formKey.currentState!.validate()) {
                       // Kirim ke Django dan tunggu respons
                       final response = await request.postJson(
-                        "http://10.0.2.2:8000/explore/edit-food-flutter/${widget.food.pk}/",
+                        "http://marla-marlena-lohkan.pbp.cs.ui.ac.id/explore/edit-food-flutter/${widget.food.pk}/",
                         jsonEncode(<String, String>{
                           'name': _name,
                           'description': _description,
