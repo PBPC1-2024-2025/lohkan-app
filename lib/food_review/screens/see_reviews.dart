@@ -44,8 +44,8 @@ class DetailScreen extends StatelessWidget {
                       color: Color(0xFF6D0000), // Dark red color as per your design
                       borderRadius: BorderRadius.circular(30), // Rounded corners
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Internal padding
-                    margin: EdgeInsets.symmetric(horizontal: 50), // Margin for the sides
+                    padding: EdgeInsets.symmetric(horizontal: 90, vertical: 5), // Internal padding
+                    margin: EdgeInsets.symmetric(horizontal: 30), // Margin for the sides
                     child: Text(
                       "Type: $foodType",
                       style: TextStyle(
@@ -64,10 +64,15 @@ class DetailScreen extends StatelessWidget {
                     child: Text(snapshot.data!['rating_label'], style: TextStyle(fontSize: 18, color: Colors.red)),
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF9B3C3C), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
-                    child: Center(
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 100), // Horizontal padding
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF9B3C3C),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      ),
                       child: Text('Back to Main Reviews', style: TextStyle(fontSize: 18, color: Colors.white)),
                     ),
                   ),
@@ -92,15 +97,55 @@ class ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.zero, // Remove margin for full width
-      elevation: 2,
-      child: ListTile(
-        contentPadding: EdgeInsets.all(16),
-        title: Text("Reviewed by: ${review['username']}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        subtitle: Text("${review['rating']} Stars\n${review['comments']}", style: TextStyle(fontSize: 16)),
-        isThreeLine: true,
+    int starCount = int.parse(review['rating'].toString());
+    List<Widget> stars = List.generate(5, (index) {
+      return Icon(
+        index < starCount ? Icons.star : Icons.star_border,
+        color: Colors.amber,
+        size: 16,
+      );
+    });
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: Offset(0, 2),  // changes position of shadow
+          ),
+        ],
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            review['username'],
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          SizedBox(height: 5),
+          Row(
+            children: stars,
+          ),
+          SizedBox(height: 8),
+          Text(
+            review['comments'],
+            style: TextStyle(
+              fontSize: 14,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
