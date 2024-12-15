@@ -63,19 +63,7 @@ class DetailScreen extends StatelessWidget {
                   Center(
                     child: Text(snapshot.data!['rating_label'], style: TextStyle(fontSize: 18, color: Colors.red)),
                   ),
-                  SizedBox(height: 20),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 100), // Horizontal padding
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF9B3C3C),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      ),
-                      child: Text('Back to Main Reviews', style: TextStyle(fontSize: 18, color: Colors.white)),
-                    ),
-                  ),
+                  
                   SizedBox(height: 20),
                   ...reviews.map((review) => ReviewCard(review: review)).toList(),
                 ],
@@ -119,7 +107,7 @@ class ReviewCard extends StatelessWidget {
             offset: Offset(0, 2),  // changes position of shadow
           ),
         ],
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
       ),
       child: Column(
