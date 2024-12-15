@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:lohkan_app/bucket_list/components/food_item_card.dart';
 import 'package:lohkan_app/bucket_list/models/bucketlist_entry.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class BucketListScreen extends StatefulWidget {
   const BucketListScreen({super.key});
@@ -32,6 +33,20 @@ class _BucketListScreenState extends State<BucketListScreen> {
     }
     return listBucketEntry;
   }
+
+  Future<Food> fetchFoodDetails(String foodId) async {
+  final response = await http.get(
+    Uri.parse('http://127.0.0.1:8000/bucket-list/get-food/$foodId/'),
+  );
+
+  if (response.statusCode == 200) {
+    final json = jsonDecode(response.body);
+    return Food.fromJson(json);
+  } else {
+    throw Exception('Failed to fetch food details');
+  }
+}
+
   // Function to show popup
   void _showCreateCollectionSheet(BuildContext context) {
     final request = context.read<CookieRequest>();
@@ -478,6 +493,7 @@ class _BucketListScreenState extends State<BucketListScreen> {
                   )
                 );
             } else {
+              // debugPrint(snapshot.data!.length);
               return Column(
                 children: [
                   Container(
@@ -597,13 +613,17 @@ class _BucketListScreenState extends State<BucketListScreen> {
                               ],
                             ),
                           ),
-                          ListView.builder(itemBuilder: (i, idx) => FoodItemCard(
-                            title: "${snapshot.data![index].fields.foods[idx].fields.name}",
-                            description: 'Ikan kuning-kuning',
-                            price: '40000 - 60000',
-                            imagePath: 'assets/resto1.jpeg'
+                          Column(
+                            children: List.generate(
+                              snapshot.data![index].fields.foods.length,
+                              (idx) => FoodItemCard(
+                                title: "${snapshot.data![index].fields.foods[idx]}",
+                                description: 'Ikan kuning-kuning',
+                                price: '40000 - 60000',
+                                imagePath: 'assets/resto1.jpeg',
+                              ),
+                            ),
                           ),
-                          )
                         ],
                       ),
                     ),
