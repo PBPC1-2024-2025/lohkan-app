@@ -22,7 +22,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
   String searchQuery = ''; // Menyimpan kata kunci pencarian
 
   Future<List<AskRecipeEntry>> _fetchRecipes(CookieRequest request) async {
-    final String apiUrl = 'http://127.0.0.1:8000/ask_recipe/json/';
+    final String apiUrl = 'http://10.0.2.2:8000/ask_recipe/json/';
 
     try {
       final response = await http.get(Uri.parse(apiUrl));

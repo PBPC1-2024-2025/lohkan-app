@@ -37,11 +37,9 @@ dependencies:
   provider: ^6.1.2
   pbp_django_auth: ^0.4.0
   http: ^1.2.2
-<<<<<<< HEAD
+
   file_picker: ^8.1.4
-=======
-  file_picker: ^5.0.0
->>>>>>> 567c994b3d2fd06c412f3962a8cebd848f8ac3c4
+
   image_picker: ^1.1.2
   http_parser: ^4.0.0
   uuid: ^4.5.1
@@ -51,12 +49,8 @@ dependencies:
   cached_network_image: ^3.4.1
   image_network: ^2.5.6
   flutter_widget_from_html_core: ^0.15.2
-<<<<<<< HEAD
-  fluent_ui: ^1.2.3
   intl: ^0.19.0
-=======
   fluent_ui: ^4.9.2
->>>>>>> 567c994b3d2fd06c412f3962a8cebd848f8ac3c4
 
 dev_dependencies:
   flutter_test:

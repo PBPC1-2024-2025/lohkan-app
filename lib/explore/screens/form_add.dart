@@ -48,7 +48,7 @@ class _AddFoodFormState extends State<AddFoodForm> {
           icon: const Icon(Icons.arrow_back),
         ),
         titleSpacing: 0,
-        title: Container(
+        title: SizedBox(
           width: MediaQuery.of(context).size.width * 1,
           child: const Text(
             'New Food',

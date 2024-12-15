@@ -145,7 +145,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
-        title: Container(
+        title: SizedBox(
           width: MediaQuery.of(context).size.width * 0.9,
           child: Row(
             children: [
@@ -283,8 +283,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     crossAxisSpacing: 0,
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
-                      var _imageUrl = snapshot.data![index].fields.imageLink;
-                      return Container(
+                      var imageUrl = snapshot.data![index].fields.imageLink;
+                      return SizedBox(
                         height: MediaQuery.of(context).size.width / 3,
                         child: InkWell(
                           onTap: () => Navigator.push(
@@ -300,7 +300,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             }
                           }),
                           child: CachedNetworkImage(
-                              imageUrl: _imageUrl,
+                              imageUrl: imageUrl,
                               imageBuilder: (context, imageProvider) {
                                 return Container(
                                   height: MediaQuery.of(context).size.width / 3,
