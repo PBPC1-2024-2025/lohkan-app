@@ -347,7 +347,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
 
   // Add this method to your _AskRecipeScreenState class
   Future<void> _deleteRecipe(String recipeId) async {
-    final url = Uri.parse('http://127.0.0.1:8000/ask_recipe/delete_recipe/$recipeId/');
+    final url = Uri.parse('http://10.0.2.2:8000/ask_recipe/delete_recipe/$recipeId/');
 
     try {
       final response = await http.delete(

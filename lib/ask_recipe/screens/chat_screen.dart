@@ -38,7 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _fetchMessages() async {
-  final url = 'http://127.0.0.1:8000/ask_recipe/chat-messages/?group_id=${widget.groupId}';
+  final url = 'http://10.0.2.2:8000/ask_recipe/chat-messages/?group_id=${widget.groupId}';
 
   try {
     final response = await _request.get(url);
@@ -93,54 +93,55 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _deleteMessage(String messageId) async {
-    final url = 'http://127.0.0.1:8000/ask_recipe/delete_chat_message/$messageId/';
+  final url = 'http://127.0.0.1:8000/ask_recipe/delete_chat_message/$messageId/';
 
-    try {
-      // Ambil cookie dari CookieRequest
-      final cookie = _request.cookies.toString();
+  try {
+    // Ambil cookie dari CookieRequest
+    final cookie = _request.cookies.toString();
 
-      // Buat header dengan cookie
-      final headers = {
-        'Cookie': cookie, // Sertakan cookie dalam header
-        'Content-Type': 'application/json',
-      };
+    // Buat header dengan cookie
+    final headers = {
+      'Cookie': cookie, // Sertakan cookie dalam header
+      'Content-Type': 'application/json',
+    };
 
-      // Lakukan permintaan DELETE
-      final response = await http.delete(
-        Uri.parse(url),
-        headers: headers,
-      );
+    // Lakukan permintaan DELETE
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: headers,
+    );
 
-      if (response.statusCode == 200) {
-        // Check if the response is valid JSON
-        final jsonResponse = json.decode(response.body);
+    if (response.statusCode == 200) {
+      // Check if the response is valid JSON
+      final jsonResponse = json.decode(response.body);
 
-        // Refresh the message list after successful deletion
-        _refreshMessages(messageId);
+      // Refresh the message list after successful deletion
+      _refreshMessages(messageId);
 
-        // Show a snackbar to confirm deletion
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(jsonResponse['message'])),
-          );
-        }
-      } else {
-        // Handle the error
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to delete message')),
-          );
-        }
-      }
-    } catch (e) {
-      // Handle any other exceptions
+      // Show a snackbar to confirm deletion
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete message: $e')),
+          SnackBar(content: Text(jsonResponse['message'])),
+        );
+      }
+    } else {
+      // Handle the error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete message')),
         );
       }
     }
+  } catch (e) {
+    // Handle any other exceptions
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete message: $e')),
+      );
+    }
   }
+}
+
 
   void _scrollToBottom() {
   WidgetsBinding.instance.addPostFrameCallback((_) {
