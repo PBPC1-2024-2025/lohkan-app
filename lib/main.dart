@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lohkan_app/authentication/screens/login.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-import 'screens/homepage.dart'; // Import homepage.dart
 
 void main() {
   runApp(const MyApp());
@@ -22,10 +21,33 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'LohKan',
         theme: ThemeData(
-          primarySwatch: Colors.brown,
+          primaryColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white, 
+          inputDecorationTheme: InputDecorationTheme(
+            fillColor: Colors.grey.shade100, 
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
+          ),
+          bottomSheetTheme: const BottomSheetThemeData(
+            backgroundColor: Colors.white, 
+            surfaceTintColor: Colors.white,
+          ),
+          cardTheme: const CardTheme(
+            color: Colors.white, 
+            surfaceTintColor: Colors.white,
+          ),
+          buttonTheme: ButtonThemeData(
+            buttonColor: Color(0xFF550000), 
+          ),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            shape: CircleBorder(), // Pastikan bentuk bulat
+          ),
         ),
-        home: const LoginPage(), // Memanggil HomePage dari file homepage.dart
+        home: const LoginPage(), 
       )
+
     );
   }
 }

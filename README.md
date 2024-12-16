@@ -4,11 +4,13 @@
 <p> Aplikasi LohKan kini dapat diunduh melalui XXXXX </p>
 
 ## <summary><strong>Alur Integrasi Web dengan Aplikasi LohKan</strong></summary>
-<p> Terdapat beberapa langkah dalam pengintegrasian django dengan flutter LohKan yaitu</br>
+<p> Berikut ini beberapa langkah dalam pengintegrasian django dengan flutter LohKan</br>
+
+<b>Secara Umum di Seluruh Modul: </b><br/>
 1. Menambahkan library http agar aplikasi bisa terhubung dengan website LohKan.</br>
-2. Menggunakan kembali autentikasi yang ada pada web (login, ,logout dan register) untuk diintegrasikan ke aplikasi flutter, agar pengguna dapat login sesuai perannya dengan memberikan token id.</br>
+2. Menggunakan kembali autentikasi yang ada pada web (login, logout, dan register) untuk diintegrasikan ke aplikasi flutter, agar pengguna dapat login sesuai perannya dengan memberikan token id.</br>
 3. Memakai library pbp_django_auth untuk mengurus request server yang berupa cookies request agar user bisa terautentikasi dan tertorisasi dengan baik. </br>
-4. Data dataset yang ada di website, bisa diubah dari format JSON ke format objek dart dengan "https://app.quicktype.io/" agar bisa ditampilkan di aplikasi LohKan pada fitur Explore. </br>
+4. Data dataset yang ada di website, bisa diubah dari format JSON ke format objek dart dengan "https://app.quicktype.io/" agar bisa ditampilkan di aplikasi LohKan pada fitur Explore, Bucket List, Ask Recipe, Food Review, dan Article. </br>
 </p>
 
 ## <summary><strong>Anggota Kelompok C01 </strong></summary>
@@ -77,4 +79,5 @@ Para Foodies memiliki role sebagai user yang dapat melihat berbagai produk yang 
 ## <summary><strong>Berita Acara Kelompok C01</strong></summary>
 <p> Berita acara kelompok CO1 dapat diakses pada link berikut <a href="https://docs.google.com/spreadsheets/d/1PTfbKL2_vmzfagNTIhkKrnzzTK4m1F3I/edit?gid=1978216498#gid=1978216498" target="_blank">ini</a> 
 
-
+## <summary><strong>Link Design</strong></summary>
+https://www.figma.com/design/hyw1YqYThyIRcNes0k746g/Lohkan-APP?node-id=0-1&node-type=canvas&t=iVtYVtdc9cx1Usni-0
