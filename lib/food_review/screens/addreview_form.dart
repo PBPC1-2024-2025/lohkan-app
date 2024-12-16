@@ -21,7 +21,7 @@ class _ReviewEntryFormPageState extends State<ReviewEntryFormPage> {
     var body = jsonEncode({
       'name': _foodName,
       'food_type': _foodType,
-      'rating': _rating.toString(),
+      'rating': _rating,
       'comments': _comments,
     });
 

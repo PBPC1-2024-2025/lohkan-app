@@ -9,7 +9,7 @@ class DetailScreen extends StatelessWidget {
   DetailScreen({required this.foodName, required this.foodType});
 
   Future<Map<String, dynamic>> fetchReviews() async {
-    final Uri url = Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/food-review/reviews/food/$foodName/$foodType/?format=json');
+    final Uri url = Uri.parse('http://127.0.0.1:8000/food-review/reviews/food/$foodName/$foodType/?format=json');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -136,4 +136,3 @@ class ReviewCard extends StatelessWidget {
     );
   }
 }
-
