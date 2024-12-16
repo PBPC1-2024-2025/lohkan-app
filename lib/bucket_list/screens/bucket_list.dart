@@ -18,6 +18,14 @@ class _BucketListScreenState extends State<BucketListScreen> {
   String _collectionName = "";
   int? selectedIndex;
 
+  void refreshList() {
+    final request = context.read<CookieRequest>();
+
+    setState(() {
+      fetchBucketList(request);
+    });
+  }
+
   Future<List<BucketListEntry>> fetchBucketList(CookieRequest request) async {
     final response = await request.get('http://127.0.0.1:8000/bucket-list/json/');
     
@@ -765,11 +773,14 @@ class _BucketListScreenState extends State<BucketListScreen> {
                                         return Text('Error: ${foodSnapshot.error}');
                                       } else if (foodSnapshot.hasData) {
                                         return FoodItemCard(
+                                          foodId: foodSnapshot.data!.pk,
+                                          bucketId: snapshot.data![selectedIndex!].pk,
                                           title: foodSnapshot.data!.fields.name,
                                           description: foodSnapshot.data!.fields.description,
                                           price: '${foodSnapshot.data!.fields.minPrice} - ${foodSnapshot.data!.fields.maxPrice}',
                                           imagePath: foodSnapshot.data!.fields.imageLink,
                                           foodType: '${foodSnapshot.data!.fields.type}',
+                                          onRemove: refreshList,
                                         );
                                       } else {
                                         return const Text('No data available');
