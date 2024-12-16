@@ -32,9 +32,9 @@ class _PageFoodReviewState extends State<PageFoodReview> {
   }
 
   Future<Map<String, dynamic>> fetchAndProcessReviews() async {
-  var url = Uri.parse('http://127.0.0.1:8000/food-review/json/');
+  var url = Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/food-review/json/');
   final response = await http.get(url);
-  if (response.statusCode == 200) {
+  if (response.statusCode == 200 || response.statusCode == 302) {
     List<ReviewEntry> entries = reviewEntryFromJson(response.body);
     Map<String, dynamic> processedReviews = {};
     for (var entry in entries) {
@@ -161,7 +161,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                   if (_formKey.currentState!.validate()) {
                     // Perform POST request
                     var response = await http.post(
-                      Uri.parse('http://127.0.0.1:8000/food-review/create-review-flutter/'),
+                      Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/food-review/create-review-flutter/'),
                       headers: <String, String>{
                         'Content-Type': 'application/json; charset=UTF-8',
                       },
@@ -173,12 +173,15 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                       }),
                     );
                   
-
-                    if (response.statusCode == 201 || response.statusCode == 200) {
+                    print(response.statusCode);
+                    if (response.statusCode == 200) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text("Review successfully created!"),
                         backgroundColor: Colors.green,
                       ));
+                      setState(() {
+                      futureFoodReviews = fetchAndProcessReviews();
+                      });
                       Navigator.pop(context); // Close the modal after submitting
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -201,7 +204,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
           ),
         ),
       );
-    },
+    }
   );
 }
 
@@ -209,9 +212,9 @@ class _PageFoodReviewState extends State<PageFoodReview> {
   @override
   Widget build(BuildContext context) {
    Future<List<ReviewEntry>> fetchReviews(CookieRequest request) async {
-      final response = await request.get('http://127.0.0.1:8000/food-review/create-review-flutter/json');
+      final response = await request.get('http://marla-marlena-lohkan.pbp.cs.ui.ac.id//food-review/create-review-flutter/json/');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 302) {
         // Decode the JSON response into a list of dynamic objects
         List<dynamic> jsonResponse = jsonDecode(response.body);
 
