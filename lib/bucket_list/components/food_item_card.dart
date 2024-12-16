@@ -5,14 +5,29 @@ class FoodItemCard extends StatelessWidget {
   final String description;
   final String price;
   final String imagePath;
+  final String foodType;
 
   const FoodItemCard({
     required this.title,
     required this.description,
     required this.price,
     required this.imagePath,
+    required this.foodType,
     super.key,
   });
+
+  String specifyFoodType(String foodType) {
+    if (foodType == 'Type.MC') {
+      return 'Main Course';
+    } else if (foodType == 'Type.SN') {
+      return 'Snacks';
+    } else if (foodType == 'Type.DS') {
+      return 'Desserts';
+    } else if (foodType == 'Type.DR') {
+      return 'Drinks';
+    }
+    return 'Unspecified';
+  }
 
   void showFoodDetailsSheet(BuildContext context, {
     required String title,
@@ -53,10 +68,17 @@ class FoodItemCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   child: SizedBox(
                     width: double.infinity,
-                    height: 200, // Ensure a square shape
-                    child: Image.asset(
+                    height: 200, // Adjust height
+                    child: Image.network(
                       imagePath,
-                      fit: BoxFit.cover, // Zoom in to cover the square
+                      fit: BoxFit.cover, // Ensure the image fills the container
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child; // Display image once loaded
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.broken_image, size: 100, color: Colors.grey);
+                      },
                     ),
                   ),
                 ),
@@ -87,7 +109,7 @@ class FoodItemCard extends StatelessWidget {
 
                 // Food Type
                 Text(
-                  foodType,
+                  specifyFoodType(foodType),
                   style: const TextStyle(
                     fontSize: 14,
                     fontStyle: FontStyle.italic,
@@ -114,7 +136,6 @@ class FoodItemCard extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -125,7 +146,7 @@ class FoodItemCard extends StatelessWidget {
           description: description,
           price: price,
           imagePath: imagePath,
-          foodType: 'Main Course', // Add the food type
+          foodType: foodType, // Add the food type
         );
       },
       child: Container(
@@ -187,9 +208,16 @@ class FoodItemCard extends StatelessWidget {
                 height: 100, // Specify the height
                 child: AspectRatio(
                   aspectRatio: 1, // Ensures a 1:1 aspect ratio
-                  child: Image.asset(
-                    imagePath, // Path to the image
+                  child: Image.network(
+                    imagePath, // Path to the image (URL)
                     fit: BoxFit.cover, // Ensure the image fills the container
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.broken_image, size: 50, color: Colors.grey);
+                    },
                   ),
                 ),
               ),
