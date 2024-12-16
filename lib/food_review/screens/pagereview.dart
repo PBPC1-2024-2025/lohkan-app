@@ -174,7 +174,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                     );
                   
 
-                    if (response.statusCode == 201) {
+                    if (response.statusCode == 201 || response.statusCode == 200) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text("Review successfully created!"),
                         backgroundColor: Colors.green,
@@ -260,6 +260,8 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                     bool matchesSearch = _searchQuery.isEmpty || reviewDetails.fields.name.toLowerCase().contains(_searchQuery.toLowerCase());
                     return matchesFilter && matchesSearch;
                   }).map((e) => e.value).toList();
+
+                 
               List<String> categories = ['All', 'Main Course', 'Dessert', 'Drinks', 'Snacks'];
               return CustomScrollView(
                 slivers: <Widget>[
