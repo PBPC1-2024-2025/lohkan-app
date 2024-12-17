@@ -727,30 +727,9 @@ class _BucketListScreenState extends State<BucketListScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     const Text(
-                                      'Your bucket list is empty.\nLet\'s go find some food, shall we?',
+                                      'Your bucket list is empty.\nGo get exploring!',
                                       textAlign: TextAlign.center,
                                       style: TextStyle(fontSize: 16),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        _showCreateCollectionSheet(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF550000),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        minimumSize: const Size(240, 40),
-                                      ),
-                                      child: const Text(
-                                        'Let\'s explore',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
                                     ),
                                   ]
                                 )

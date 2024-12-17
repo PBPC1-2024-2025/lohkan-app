@@ -54,7 +54,7 @@ class FoodItemCard extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: MediaQuery.of(context).size.height * 0.75,
           child: Column(
             children: [
@@ -78,22 +78,24 @@ class FoodItemCard extends StatelessWidget {
                           ),
                         ),
 
-                        // Food image
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 200,
-                            child: Image.network(
-                              imagePath,
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return const Center(child: CircularProgressIndicator());
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.broken_image, size: 100, color: Colors.grey);
-                              },
+                        Center(
+                          // Food image
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24), // Optional: Rounded corners
+                            child: SizedBox(
+                              width: 300, // Specify the width
+                              height: 300, // Specify the height
+                              child: Image.network(
+                                imagePath, // Path to the image (URL)
+                                fit: BoxFit.cover, // Ensure the image fills the container
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.broken_image, size: 50, color: Colors.grey);
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -110,35 +112,43 @@ class FoodItemCard extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              'Rp$price',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                                ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD9D9D9),
+                                borderRadius: BorderRadius.circular(12)
                               ),
-                            ),
+                              child: Text(
+                                specifyFoodType(foodType),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
                           ],
                         ),
                         const SizedBox(height: 8),
 
                         // Food Type
                         Text(
-                          specifyFoodType(foodType),
+                          description,
                           style: const TextStyle(
                             fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                            color: Colors.grey,
                           ),
                         ),
                         const SizedBox(height: 16),
 
                         // Detailed Description
                         Text(
-                          description,
+                          'Rp$price',
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black87,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -159,10 +169,10 @@ class FoodItemCard extends StatelessWidget {
                       try {
                         final response = await request.post(
                           'http://127.0.0.1:8000/bucket-list/remove-food/$foodId/$bucketId/',
-                          {}
+                          {},
                         );
-                        
-                        if (response['success'] == true) {  // adjust based on your API response
+
+                        if (response['success'] == true) { // Adjust based on your API response
                           Navigator.pop(context); // Close the bottom sheet
                           onRemove();
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -170,7 +180,6 @@ class FoodItemCard extends StatelessWidget {
                               content: Text('Food item removed successfully'),
                             ),
                           );
-                          
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -193,16 +202,30 @@ class FoodItemCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      'Tried',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center, // Center the Row content
+                      mainAxisSize: MainAxisSize.min, // Shrink to the size of the content
+                      children: [
+                        const Icon(
+                          Icons.check, // Checklist icon
+                          size: 20, // Icon size
+                          color: Colors.white, // Icon color
+                        ),
+                        const SizedBox(width: 8), // Spacing between icon and text
+                        const Text(
+                          'Tried',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
+
             ],
           ),
         );
