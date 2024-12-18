@@ -1,10 +1,8 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:pbp_django_auth/pbp_django_auth.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 class CreateRecipeScreen extends StatefulWidget {
   final Function()? onRecipeAdded;
@@ -75,9 +73,22 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
     );
   }
 
-  Future<void> _createRecipe(CookieRequest request) async {
-    final url = 'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/create_recipe_flutter/';
+  Future<void> _createRecipe() async {
+    final url = 'http://10.0.2.2:8000/ask_recipe/create_recipe_flutter/';
 
+    // Validasi input fields
+    if (_titleController.text.isEmpty ||
+        _ingredientsController.text.isEmpty ||
+        _instructionsController.text.isEmpty ||
+        _cookingTimeController.text.isEmpty ||
+        _servingsController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'All fields are required';
+      });
+      return;
+    }
+
+    // Validasi angka (cooking time dan servings)
     final cookingTime = int.tryParse(_cookingTimeController.text);
     final servings = int.tryParse(_servingsController.text);
 
@@ -88,51 +99,70 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
       return;
     }
 
+    if (cookingTime <= 0 || servings <= 0) {
+      setState(() {
+        _errorMessage = 'Cooking time and servings must be greater than 0!';
+      });
+      return;
+    }
+
+    // Validasi nama resep unik
+    final existingRecipesUrl = 'http://10.0.2.2:8000/ask_recipe/json/';
     try {
-      // Buat MultipartRequest
+      final response = await http.get(Uri.parse(existingRecipesUrl));
+      if (response.statusCode == 200) {
+        final List<dynamic> recipes = json.decode(response.body);
+        final existingTitles = recipes.map((recipe) => recipe['fields']['title'].toLowerCase()).toList();
+
+        if (existingTitles.contains(_titleController.text.toLowerCase())) {
+          setState(() {
+            _errorMessage = "Recipe with the name '${_titleController.text}' already exists.";
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      print('Error checking existing recipes: $e');
+      setState(() {
+        _errorMessage = 'Failed to check existing recipes. Please try again.';
+      });
+      return;
+    }
+
+    // Validasi gambar tidak boleh kosong
+    if (_image == null) {
+      setState(() {
+        _errorMessage = 'Image is required!';
+      });
+      return;
+    }
+
+    try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
 
       // Tambahkan field teks
       request.fields['title'] = _titleController.text;
       request.fields['ingredients'] = _ingredientsController.text;
       request.fields['instructions'] = _instructionsController.text;
-      request.fields['cooking_time'] = cookingTime.toString();
-      request.fields['servings'] = servings.toString();
+      request.fields['cooking_time'] = cookingTime.toString(); // Gunakan angka yang sudah divalidasi
+      request.fields['servings'] = servings.toString(); // Gunakan angka yang sudah divalidasi
 
-      // Tambahkan gambar jika dipilih
+      // Tambahkan gambar jika ada
       if (_image != null) {
-        // Baca file gambar sebagai byte array
-        final imageBytes = await _image!.readAsBytes();
-        final fileName = _image!.path.split('/').last; // Ambil nama file
-
-        // Deteksi tipe file berdasarkan ekstensi
-        String mimeType = '';
-        if (fileName.endsWith('.png')) {
-          mimeType = 'image/png';
-        } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
-          mimeType = 'image/jpeg';
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Unsupported image format')),
-          );
-          return;
-        }
-
-        // Tambahkan file gambar sebagai byte array
-        request.files.add(
-          http.MultipartFile.fromBytes(
-            'image', // Field name (harus sesuai dengan yang diharapkan server)
-            imageBytes, // Byte array dari gambar
-            filename: fileName, // Nama file
-            contentType: MediaType.parse(mimeType), // Tipe file
-          ),
+        var stream = http.ByteStream(_image!.openRead());
+        var length = await _image!.length();
+        var multipartFile = http.MultipartFile(
+          'image', // Nama field yang sama dengan di Django
+          stream,
+          length,
+          filename: _image!.path.split('/').last,
         );
+        request.files.add(multipartFile);
       }
 
       // Kirim request
       var response = await request.send();
 
-      // Tangani response
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
 
@@ -143,13 +173,15 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
         );
         Navigator.of(context).pop();
       } else {
-        // Tangani jika ada error dari server
         var responseBody = await response.stream.bytesToString();
+        var jsonResponse = json.decode(responseBody);
+        String errorMessage = jsonResponse['message'] ?? 'Terjadi kesalahan';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create recipe: ${response.reasonPhrase}, $responseBody')),
+          SnackBar(content: Text('Gagal membuat resep: $errorMessage')),
         );
       }
     } catch (e) {
+      print('Error creating recipe: $e');
       setState(() {
         _errorMessage = 'Error creating recipe: $e';
       });
@@ -203,7 +235,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
               SizedBox(height: 10),
               _buildImagePicker(context),
               SizedBox(height: 10),
-              if (_errorMessage != null) 
+              if (_errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
@@ -257,7 +289,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
           onTap: () => _showImagePickerModal(context),
           child: Container(
             width: double.infinity,
-            height: 55, 
+            height: 55,
             decoration: BoxDecoration(
               border: Border.all(
                 color: Colors.grey[600]!, // Warna border yang lebih gelap
@@ -267,22 +299,22 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
             ),
             child: _image != null
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image.file(
-                      _image!, // Pastikan _image tidak null
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: 55,
-                    ),
-                  )
+              borderRadius: BorderRadius.circular(5),
+              child: Image.file(
+                _image!, // Pastikan _image tidak null
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: 55,
+              ),
+            )
                 : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.add_a_photo),
-                      SizedBox(width: 10),
-                      Text('Add a photo'),
-                    ],
-                  ),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.add_a_photo),
+                SizedBox(width: 10),
+                Text('Add a photo'),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 10),
@@ -308,13 +340,12 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
         SizedBox(width: 20),
         ElevatedButton(
           onPressed: () {
-            final request = Provider.of<CookieRequest>(context, listen: false);
             if (_titleController.text.isNotEmpty &&
                 _ingredientsController.text.isNotEmpty &&
                 _instructionsController.text.isNotEmpty &&
                 _cookingTimeController.text.isNotEmpty &&
                 _servingsController.text.isNotEmpty) {
-              _createRecipe(request);
+              _createRecipe();
             } else {
               setState(() {
                 _errorMessage = 'All fields are required!';

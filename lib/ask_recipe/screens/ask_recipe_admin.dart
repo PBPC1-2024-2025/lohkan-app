@@ -1,18 +1,18 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:lohkan_app/ask_recipe/screens/chat_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:lohkan_app/ask_recipe/screens/create_recipe.dart';
-import 'package:lohkan_app/ask_recipe/models/recipe_entry.dart';
+import 'package:lohkan_app/ask_recipe/models/recipe_entry.dart'; // Import file model
 import 'package:lohkan_app/ask_recipe/screens/view_recipe.dart';
 
 class AskRecipeScreenAdmin extends StatefulWidget {
   final String username;
   final bool isAdmin;
   const AskRecipeScreenAdmin({super.key, required this.username, this.isAdmin = true});
-  
+
   @override
   State<AskRecipeScreenAdmin> createState() => _AskRecipeScreenAdminState();
 }
@@ -22,15 +22,21 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
   String searchQuery = ''; // Menyimpan kata kunci pencarian
 
   Future<List<AskRecipeEntry>> _fetchRecipes(CookieRequest request) async {
-    final String apiUrl = 'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/json/';
+    final String apiUrl = 'http://10.0.2.2:8000/ask_recipe/json/';
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as List;
-        return data.map((json) => AskRecipeEntry.fromJson(json)).toList();
+      final response = await request.get(apiUrl);
+
+      if (response is List<dynamic>) {
+        List<AskRecipeEntry> listRecipes = [];
+        for (var d in response) {
+          if (d != null) {
+            listRecipes.add(AskRecipeEntry.fromJson(d));
+          }
+        }
+        return listRecipes;
       } else {
-        throw Exception('Failed to load recipes');
+        throw Exception('Invalid response format: Expected a List');
       }
     } catch (e) {
       throw Exception('Error fetching recipes: $e');
@@ -104,14 +110,14 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                           child: const Icon(
                             Icons.add_rounded,
                             color: Colors.white,
-                            size: 32, 
+                            size: 32,
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                
+
                 // Search Bar with proper placeholder
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -141,9 +147,9 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Recipe List
                 Expanded(
                   child: FutureBuilder<List<AskRecipeEntry>>(
@@ -183,7 +189,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
 
                           return _buildRecipeGroup(
                             title: recipe.fields.title,
-                            imageUrl: "https://via.placeholder.com/50",
+                            imageUrl: recipe.fields.imageUrl,
                             ingredients: recipe.fields.ingredients,
                             instructions: recipe.fields.instructions,
                             cookingTime: recipe.fields.cookingTime,
@@ -214,6 +220,10 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
     required String recipeId,
     required String groupId,
   }) {
+
+    // Debug the imageUrl URL
+    print('Image URL: $imageUrl');
+
     return Dismissible(
       key: Key(recipeId),
       direction: DismissDirection.endToStart,
@@ -239,7 +249,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
         );
       },
       background: Container(
-     
+
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.red,
@@ -270,7 +280,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
               context,
               MaterialPageRoute(
                 builder: (context) => ChatScreen(
-                  groupId: groupId, 
+                  groupId: groupId,
                   groupName: title,
                   currentUserName: widget.username,
                 ),
@@ -296,6 +306,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
+
                 ),
               ),
               const SizedBox(width: 12),
@@ -347,7 +358,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
 
   // Add this method to your _AskRecipeScreenState class
   Future<void> _deleteRecipe(String recipeId) async {
-    final url = Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/delete_recipe/$recipeId/');
+    final url = Uri.parse('http://10.0.2.2:8000/ask_recipe/delete_recipe/$recipeId/');
 
     try {
       final response = await http.delete(
