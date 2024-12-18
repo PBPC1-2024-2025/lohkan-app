@@ -27,7 +27,7 @@ class _BucketListScreenState extends State<BucketListScreen> {
   }
 
   Future<List<BucketListEntry>> fetchBucketList(CookieRequest request) async {
-    final response = await request.get('http://127.0.0.1:8000/bucket-list/json/');
+    final response = await request.get('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/json/');
     
     // Melakukan decode response menjadi bentuk json
     var data = response;
@@ -45,7 +45,7 @@ class _BucketListScreenState extends State<BucketListScreen> {
   Future<Food> fetchFoodDetails(String foodId, CookieRequest request) async {
     try {
       // debugPrint('Fetching food details for ID: $foodId');
-      final response = await request.get('http://127.0.0.1:8000/bucket-list/get-food/$foodId/');
+      final response = await request.get('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/get-food/$foodId/');
       // debugPrint('Received response: $response');
       
       // Restructure the response to match the expected model
@@ -152,7 +152,7 @@ class _BucketListScreenState extends State<BucketListScreen> {
                     if (_formKey.currentState!.validate()) {
                       // Send to Django
                       final response = await request.post(
-                        'http://127.0.0.1:8000/bucket-list/create-bucket-list-flutter/',
+                        'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/create-bucket-list-flutter/',
                         jsonEncode({
                           'name': _collectionName,
                         }),
@@ -367,7 +367,7 @@ class _BucketListScreenState extends State<BucketListScreen> {
                     if (editFormKey.currentState!.validate()) {
                       try {
                         final response = await request.post(
-                          'http://127.0.0.1:8000/bucket-list/edit-bucket-list-flutter/$bucketListId/',
+                          'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/edit-bucket-list-flutter/$bucketListId/',
                           jsonEncode({
                             'name': newName,
                           }),
@@ -489,7 +489,7 @@ class _BucketListScreenState extends State<BucketListScreen> {
                       onPressed: () async {
                         try {
                           final response = await request.post(
-                            'http://127.0.0.1:8000/bucket-list/delete-bucket-list-flutter/$bucketListId/',
+                            'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/delete-bucket-list-flutter/$bucketListId/',
                             jsonEncode(<String, String>{
                               'delete': 'yes',
                             }),

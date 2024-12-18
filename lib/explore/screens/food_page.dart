@@ -48,7 +48,7 @@ class _FoodPageState extends State<FoodPage> {
     String? selectedId;
 
     Future<List<BucketListEntry>> fetchBucketList(CookieRequest request) async {
-      final response = await request.get('http://127.0.0.1:8000/bucket-list/json/');
+      final response = await request.get('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/json/');
       
       // Melakukan decode response menjadi bentuk json
       var data = response;
@@ -180,7 +180,7 @@ class _FoodPageState extends State<FoodPage> {
                     if (bookmarkFormKey.currentState!.validate()) {
                       try {
                         final response = await request.post(
-                          'http://127.0.0.1:8000/explore/add-to-bucket-list/$foodId/$selectedId/',
+                          'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/explore/add-to-bucket-list/$foodId/$selectedId/',
                           jsonEncode({
                             'name': selectedValue,
                           }),
