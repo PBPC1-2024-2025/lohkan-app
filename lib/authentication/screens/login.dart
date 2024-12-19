@@ -19,7 +19,7 @@ class LoginApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSwatch(
           primarySwatch: Colors.deepPurple,
-        ).copyWith(secondary: Colors.deepPurple[400]),
+        ).copyWith(secondary: const Color.fromARGB(255, 159, 159, 159)),
       ),
       home: const LoginPage(),
     );
@@ -123,17 +123,19 @@ class _LoginPageState extends State<LoginPage> {
                     // .login("http://127.0.0.1:8000/auth/login/", {
                     'username': username,
                     'password': password,
+                    
                   });
 
                   if (request.loggedIn) {
                     String message = response['message'];
                     String uname = response['username'];
+                    String userId = response['user_id'];
 
                     if (context.mounted) {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomePage(username: uname),
+                          builder: (context) => HomePage(username: uname, user_id: userId),
                         ),
                       );
                       ScaffoldMessenger.of(context)
