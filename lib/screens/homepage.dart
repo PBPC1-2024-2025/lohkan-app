@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lohkan_app/article/screens/articles.dart';
 import 'package:lohkan_app/bucket_list/screens/bucket_list.dart';
-
+import 'package:lohkan_app/food_review/screens/pagereview.dart';
 import 'package:lohkan_app/article/screens/articles_user.dart'; 
 import 'package:lohkan_app/ask_recipe/screens/ask_recipe_user.dart';
 import 'package:lohkan_app/ask_recipe/screens/ask_recipe_admin.dart';
@@ -33,7 +33,7 @@ void initState() {
   _pages = [
     const Center(child: Text('Home Page')), // Halaman Home
     ExploreScreen(username: widget.username), // Halaman Explore
-    const Center(child: Text('Food Review Page')), // Halaman Food Review
+    PageFoodReview(), // Halaman Food Review
     widget.username == 'admin' 
         ? AskRecipeScreenAdmin(username: widget.username) 
         : AskRecipeScreenUser(username: widget.username), 
