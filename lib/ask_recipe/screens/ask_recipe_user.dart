@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:lohkan_app/ask_recipe/screens/chat_screen.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -25,12 +23,18 @@ class _AskRecipeScreenUserState extends State<AskRecipeScreenUser> {
     final String apiUrl = 'http://10.0.2.2:8000/ask_recipe/json/';
 
     try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as List;
-        return data.map((json) => AskRecipeEntry.fromJson(json)).toList();
+      final response = await request.get(apiUrl);
+
+      if (response is List<dynamic>) {
+        List<AskRecipeEntry> listRecipes = [];
+        for (var d in response) {
+          if (d != null) {
+            listRecipes.add(AskRecipeEntry.fromJson(d));
+          }
+        }
+        return listRecipes;
       } else {
-        throw Exception('Failed to load recipes');
+        throw Exception('Invalid response format: Expected a List');
       }
     } catch (e) {
       throw Exception('Error fetching recipes: $e');
@@ -156,7 +160,7 @@ class _AskRecipeScreenUserState extends State<AskRecipeScreenUser> {
 
                           return _buildRecipeGroup(
                             title: recipe.fields.title,
-                            imageUrl: "https://via.placeholder.com/50",
+                            imageUrl: recipe.fields.imageUrl,
                             ingredients: recipe.fields.ingredients,
                             instructions: recipe.fields.instructions,
                             cookingTime: recipe.fields.cookingTime,
@@ -230,7 +234,7 @@ class _AskRecipeScreenUserState extends State<AskRecipeScreenUser> {
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w500,
                   color: Colors.black,
                 ),

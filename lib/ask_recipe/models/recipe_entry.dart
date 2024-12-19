@@ -34,6 +34,8 @@ class AskRecipeEntry {
 
 class Fields {
     String title;
+    String image; // Path relatif gambar
+    String imageUrl; // URL absolut gambar
     String ingredients;
     String instructions;
     int cookingTime;
@@ -44,6 +46,8 @@ class Fields {
 
     Fields({
         required this.title,
+        required this.image,
+        required this.imageUrl,
         required this.ingredients,
         required this.instructions,
         required this.cookingTime,
@@ -55,6 +59,8 @@ class Fields {
 
     factory Fields.fromJson(Map<String, dynamic> json) => Fields(
         title: json["title"],
+        image: json["image"], // Path relatif gambar
+        imageUrl: json["image_url"] ?? '', // URL absolut gambar (opsional)
         ingredients: json["ingredients"],
         instructions: json["instructions"],
         cookingTime: json["cooking_time"],
@@ -66,6 +72,8 @@ class Fields {
 
     Map<String, dynamic> toJson() => {
         "title": title,
+        "image": image,
+        "image_url": imageUrl,
         "ingredients": ingredients,
         "instructions": instructions,
         "cooking_time": cookingTime,
