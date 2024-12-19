@@ -4,6 +4,8 @@ import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lohkan_app/article/screens/articles.dart';
+import 'package:lohkan_app/bucket_list/screens/bucket_list.dart';
+import 'package:lohkan_app/food_review/screens/pagereview.dart';
 import 'package:lohkan_app/article/screens/articles_user.dart'; 
 import 'package:lohkan_app/ask_recipe/screens/ask_recipe_user.dart';
 import 'package:lohkan_app/ask_recipe/screens/ask_recipe_admin.dart';
@@ -20,6 +22,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  bool _showBucketList = false;
 
   // Daftar halaman untuk navigasi BottomNavigationBar
 late List<Widget> _pages;
@@ -30,14 +33,14 @@ void initState() {
   _pages = [
     const Center(child: Text('Home Page')), // Halaman Home
     ExploreScreen(username: widget.username), // Halaman Explore
-    const Center(child: Text('Food Review Page')), // Halaman Food Review
+    PageFoodReview(), // Halaman Food Review
     widget.username == 'admin' 
         ? AskRecipeScreenAdmin(username: widget.username) 
         : AskRecipeScreenUser(username: widget.username), 
     widget.username == 'admin' 
         ? const ArticleScreenAdmin() 
         : const ArticleScreenUser(), // Halaman Article dengan pengecekan username
-    // const BucketList(), -> ini tolong diganti sesuai dengan nama class bagian ABHI
+    const BucketListScreen(),
   ];
 }
   
@@ -45,6 +48,7 @@ void initState() {
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+      _showBucketList = false; // Disable Bucket List view
     });
   }
 
@@ -83,8 +87,7 @@ void initState() {
                   ),
                   onPressed: () {
                     setState(() {
-                      _currentIndex =
-                          0; // ini tolong diganti ke page nya ABHI ya (buat abhi)
+                      _showBucketList = true; // ini tolong diganti ke page nya ABHI ya (buat abhi)
                     });
                   },
                 ),
@@ -97,7 +100,7 @@ void initState() {
                     final request = context
                         .read<CookieRequest>(); // Ambil instance CookieRequest
                     final response = await request.logout(
-                        "http://marla-marlena-lohkan.pbp.cs.ui.ac.id/auth/logout/"); // Endpoint logout
+                        "http://10.0.2.2:8000/auth/logout/"); // Endpoint logout
 
                     if (context.mounted) {
                       // Pastikan context masih tersedia
@@ -131,7 +134,11 @@ void initState() {
                 ),
               ],
             ),
-      body: _currentIndex == 0 ? _buildHomePage() : _pages[_currentIndex],
+      body: _showBucketList
+        ? const BucketListScreen() // Show Bucket List if active
+        : (_currentIndex == 0
+            ? _buildHomePage()
+            : _pages[_currentIndex]),
       bottomNavigationBar: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -163,6 +170,10 @@ void initState() {
                 icon: Icon(Icons.article),
                 label: 'Article',
               ),
+              // BottomNavigationBarItem(
+              //   icon: Icon(Icons.bookmark),
+              //   label: 'Bucket List',
+              // )
             ],
           ),
         ],
