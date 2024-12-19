@@ -50,7 +50,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
 
   Future<void> _updateRecipe(CookieRequest request) async {
     final recipeId = widget.recipeId.toString(); // Pastikan recipeId adalah string
-    final url = 'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/ask_recipe/update_recipe_flutter/$recipeId/';
+    final url = 'http://10.0.2.2:8000/ask_recipe/update_recipe_flutter/$recipeId/';
 
 
     final cookingTime = int.tryParse(_cookingTimeController.text);
