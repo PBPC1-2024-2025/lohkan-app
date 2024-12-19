@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;// Tambahkan import untuk math
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +24,6 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final List<Message> _messages = [];
   final TextEditingController _messageController = TextEditingController();
-  late CookieRequest _request;
   final ScrollController _scrollController = ScrollController();
 
   // Map untuk menyimpan warna pesan untuk setiap pengguna
@@ -33,127 +32,156 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _request = Provider.of<CookieRequest>(context, listen: false);
     _fetchMessages();
   }
 
-  Future<void> _fetchMessages() async {
-  final url = 'http://10.0.2.2:8000/ask_recipe/chat-messages/?group_id=${widget.groupId}';
-
-  try {
-    final response = await _request.get(url);
-
-    if (response['messages'] != null) {
-      setState(() {
-        _messages.clear();
-        _messages.addAll(
-          List<Message>.from(
-            response['messages'].map((msg) => Message(
-              sender: msg['user'],
-              text: msg['message'],
-              isFromCurrentUser: msg['user'] == widget.currentUserName,
-              timestamp: DateTime.parse(msg['timestamp']).toLocal(),
-              id: msg['id'].toString(),
-            )),
-          ),
-        );
-      });
-      _scrollToBottom();
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No messages found')),
-        );
-      }
-    }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch messages: $e')),
-      );
-    }
-  }
-}
-
   Future<void> _sendMessage(String message) async {
-    final url = 'http://127.0.0.1:8000/ask_recipe/send_chat_message/';
-    final response = await _request.post(
-      url,
-      json.encode({
+    final url = 'http://10.0.2.2:8000/ask_recipe/send_chat_message/';
+    
+    try {
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      
+      // Print debug information
+      print('Sending message to group: ${widget.groupId}');
+      print('Message content: $message');
+      
+      // Make sure the data is properly formatted
+      final data = {
         'group_id': widget.groupId,
         'message': message,
-      }),
-    );
+      };
+      
+      print('Sending data: $data');  // Debug print
+      
+      final response = await request.postJson(
+        url,
+        jsonEncode(data),
+      );
+      
+      print('Received response: $response');  // Debug print
 
-    if (response != null && response['id'] != null) {
-      _messageController.clear();
-      _fetchMessages(); // Refresh pesan setelah mengirim
-      _scrollToBottom();
+      if (response != null) {
+        _messageController.clear();
+        await _fetchMessages();
+        _scrollToBottom();
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to send message: No response from server'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error sending message: $e');  // Debug print
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send message: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
+
+  // Also update the fetch messages method to ensure consistent authentication
+  Future<void> _fetchMessages() async {
+    final url = 'http://10.0.2.2:8000/ask_recipe/chat-messages/?group_id=${widget.groupId}';
+
+    try {
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      final response = await request.get(url);
+
+      if (response['messages'] != null) {
+        setState(() {
+          _messages.clear();
+          _messages.addAll(
+            List<Message>.from(
+              response['messages'].map((msg) => Message(
+                sender: msg['user'],
+                text: msg['message'],
+                isFromCurrentUser: msg['user'] == widget.currentUserName,
+                timestamp: DateTime.parse(msg['timestamp']).toLocal(),
+                id: msg['id'].toString(),
+              ))),
+          );
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to fetch messages: $e')),
+        );
+      }
+    }
+}
 
   Future<void> _deleteMessage(String messageId) async {
-  final url = 'http://127.0.0.1:8000/ask_recipe/delete_chat_message/$messageId/';
+    final url = 'http://10.0.2.2:8000/ask_recipe/delete_chat_message/$messageId/';
 
-  try {
-    // Ambil cookie dari CookieRequest
-    final cookie = _request.cookies.toString();
+    try {
+      // Ambil cookie dari CookieRequest menggunakan Provider
+      final request = Provider.of<CookieRequest>(context, listen: false);
+      final cookie = request.cookies.toString();
 
-    // Buat header dengan cookie
-    final headers = {
-      'Cookie': cookie, // Sertakan cookie dalam header
-      'Content-Type': 'application/json',
-    };
+      // Buat header dengan cookie
+      final headers = {
+        'Cookie': cookie, // Sertakan cookie dalam header
+        'Content-Type': 'application/json',
+      };
 
-    // Lakukan permintaan DELETE
-    final response = await http.delete(
-      Uri.parse(url),
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      // Check if the response is valid JSON
-      final jsonResponse = json.decode(response.body);
-
-      // Refresh the message list after successful deletion
-      _refreshMessages(messageId);
-
-      // Show a snackbar to confirm deletion
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(jsonResponse['message'])),
-        );
-      }
-    } else {
-      // Handle the error
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to delete message')),
-        );
-      }
-    }
-  } catch (e) {
-    // Handle any other exceptions
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete message: $e')),
+      // Lakukan permintaan DELETE
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: headers,
       );
+
+      if (response.statusCode == 200) {
+        // Check if the response is valid JSON
+        final jsonResponse = json.decode(response.body);
+
+        // Refresh the message list after successful deletion
+        _refreshMessages(messageId);
+
+        // Show a snackbar to confirm deletion
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(jsonResponse['message'])),
+          );
+        }
+      } else {
+        // Handle the error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to delete message')),
+          );
+        }
+      }
+    } catch (e) {
+      // Handle any other exceptions
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete message: $e')),
+        );
+      }
     }
   }
-}
-
 
   void _scrollToBottom() {
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300), // Smooth scroll duration
-        curve: Curves.easeOut,
-      );
-    }
-  });
-}
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300), // Smooth scroll duration
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   void _refreshMessages(String messageId) {
     setState(() {
@@ -180,7 +208,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return _userColors[sender]!;
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +232,7 @@ class _ChatScreenState extends State<ChatScreen> {
               itemBuilder: (context, index) {
                 final message = _messages[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Align(
                     alignment: message.isFromCurrentUser
                         ? Alignment.centerRight
@@ -221,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
-                              fontSize: 14,
+                              fontSize: 16,
                             ),
                           ),
                         SizedBox(height: 4),
@@ -229,7 +256,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           child: IntrinsicWidth(
                             child: ConstrainedBox(
                               constraints: BoxConstraints(
-                                minWidth: 100,
+                                minWidth: 120,
                                 maxWidth: MediaQuery.of(context).size.width * 0.6,
                               ),
                               child: Material(
@@ -262,7 +289,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             message.text,
                                             style: TextStyle(
                                               color: Colors.white,
-                                              fontSize: 14.0,
+                                              fontSize: 16,
                                             ),
                                             softWrap: true,
                                           ),
@@ -273,7 +300,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                               DateFormat('HH:mm').format(message.timestamp),
                                               style: TextStyle(
                                                 color: Colors.white.withOpacity(0.8),
-                                                fontSize: 10.0,
+                                                fontSize: 12,
                                               ),
                                             ),
                                           ),
@@ -364,7 +391,7 @@ class Message {
   final String text;
   final bool isFromCurrentUser;
   final DateTime timestamp;
-  final String id; 
+  final String id;
 
   Message({
     required this.sender,

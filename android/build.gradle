@@ -1,18 +1,38 @@
-allprojects {
+// Konfigurasi buildscript untuk dependensi Gradle
+buildscript {
+    ext.kotlin_version = '1.8.20' // Versi Kotlin yang digunakan
     repositories {
-        google()
-        mavenCentral()
+        google() // Repositori Google untuk dependensi Android
+        mavenCentral() // Repositori Maven Central untuk dependensi umum
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.2.1' // Versi Android Gradle Plugin (AGP)
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Plugin Kotlin
     }
 }
 
+// Konfigurasi repositori untuk semua subproyek
+allprojects {
+    repositories {
+        google() // Repositori Google untuk dependensi Android
+        mavenCentral() // Repositori Maven Central untuk dependensi umum
+    }
+}
+
+// Konfigurasi direktori build untuk proyek root
 rootProject.buildDir = "../build"
+
+// Konfigurasi direktori build untuk setiap subproyek
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
+// Konfigurasi dependensi evaluasi untuk subproyek
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Tugas untuk membersihkan (clean) proyek
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
