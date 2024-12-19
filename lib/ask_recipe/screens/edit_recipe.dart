@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
@@ -116,43 +119,20 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       });
       return;
     }
-
-    if (cookingTime <= 0 || servings <= 0) {
-      setState(() {
-        _errorMessage = 'Cooking time and servings must be greater than 0!';
-      });
-      return;
-    }
     
     try {
-      var request = http.MultipartRequest('POST', Uri.parse(url));
+      final response = await request.postJson(
+        url,
+        jsonEncode({
+          'title': _titleController.text,
+          'ingredients': _ingredientsController.text,
+          'instructions': _instructionsController.text,
+          'cooking_time': cookingTime,
+          'servings': servings,
+        }),
+      );
 
-      // Tambahkan field teks
-      request.fields['title'] = _titleController.text;
-      request.fields['ingredients'] = _ingredientsController.text;
-      request.fields['instructions'] = _instructionsController.text;
-      request.fields['cooking_time'] = cookingTime.toString();
-      request.fields['servings'] = servings.toString();
-
-      // Tambahkan gambar jika ada
-      if (_image != null) {
-        var stream = http.ByteStream(_image!.openRead());
-        var length = await _image!.length();
-        var multipartFile = http.MultipartFile(
-          'image', // Nama field yang sama dengan di Django
-          stream,
-          length,
-          filename: _image!.path.split('/').last,
-        );
-        request.files.add(multipartFile);
-      }
-
-      // Kirim request
-      var response = await request.send();
-
-      // Periksa status code
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        if (!mounted) return;
+      if (!mounted) return;
 
         widget.onRecipeUpdated?.call(
           _titleController.text,

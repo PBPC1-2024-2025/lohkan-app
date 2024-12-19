@@ -114,14 +114,38 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to fetch messages: $e')),
+          const SnackBar(content: Text('No messages found')),
         );
       }
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch messages: $e')),
+      );
+    }
+  }
+}
+
+  Future<void> _sendMessage(String message) async {
+    final url = 'http://127.0.0.1:8000/ask_recipe/send_chat_message/';
+    final response = await _request.post(
+      url,
+      json.encode({
+        'group_id': widget.groupId,
+        'message': message,
+      }),
+    );
+
+    if (response != null && response['id'] != null) {
+      _messageController.clear();
+      _fetchMessages(); // Refresh pesan setelah mengirim
+      _scrollToBottom();
     }
 }
 
   Future<void> _deleteMessage(String messageId) async {
-    final url = 'http://10.0.2.2:8000/ask_recipe/delete_chat_message/$messageId/';
+  final url = 'http://127.0.0.1:8000/ask_recipe/delete_chat_message/$messageId/';
 
     try {
       // Ambil cookie dari CookieRequest menggunakan Provider
