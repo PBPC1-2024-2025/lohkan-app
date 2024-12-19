@@ -26,7 +26,7 @@ class _ReviewEntryFormPageState extends State<ReviewEntryFormPage> {
     });
 
     var response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/add_review_ajax/'),
+      Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/add_review_ajax/'),
       headers: {'Content-Type': 'application/json'},
       body: body,
     );
