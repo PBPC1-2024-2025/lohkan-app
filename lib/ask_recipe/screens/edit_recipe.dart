@@ -123,29 +123,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       });
       return;
     }
-
-    // Validasi nama resep unik
-    final existingRecipesUrl = 'http://10.0.2.2:8000/ask_recipe/json/';
-    try {
-      final response = await http.get(Uri.parse(existingRecipesUrl));
-      if (response.statusCode == 200) {
-        final List<dynamic> recipes = json.decode(response.body);
-        final existingTitles = recipes.map((recipe) => recipe['fields']['title'].toLowerCase()).toList();
-
-        if (existingTitles.contains(_titleController.text.toLowerCase())) {
-          setState(() {
-            _errorMessage = "Recipe with the name '${_titleController.text}' already exists.";
-          });
-          return;
-        }
-      }
-    } catch (e) {
-      print('Error checking existing recipes: $e');
-      setState(() {
-        _errorMessage = 'Failed to check existing recipes. Please try again.';
-      });
-      return;
-    }
     
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
