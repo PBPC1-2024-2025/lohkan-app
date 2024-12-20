@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart'; // Tambahkan import untuk intl
 
+// Widget untuk layar chatting
 class ChatScreen extends StatefulWidget {
   final String groupId;
   final String groupName;
@@ -27,43 +29,37 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
 
   // Map untuk menyimpan warna pesan untuk setiap pengguna
-  final Map<String, Color> _userColors = {}; // Definisikan variabel _userColors di sini
+  final Map<String, Color> _userColors = {}; // Menyimpan warna setiap pengirim pesan
 
   @override
   void initState() {
     super.initState();
-    _fetchMessages();
+    _fetchMessages(); // Memuat pesan saat aplikasi pertama kali dijalankan
   }
 
+  // Fungsi untuk mengirim pesan
   Future<void> _sendMessage(String message) async {
     final url = 'http://10.0.2.2:8000/ask_recipe/send_chat_message/';
     
     try {
       final request = Provider.of<CookieRequest>(context, listen: false);
       
-      // Print debug information
-      print('Sending message to group: ${widget.groupId}');
-      print('Message content: $message');
-      
-      // Make sure the data is properly formatted
+      // Menyiapkan data yang akan dikirim
       final data = {
         'group_id': widget.groupId,
         'message': message,
       };
       
-      print('Sending data: $data');  // Debug print
-      
       final response = await request.postJson(
         url,
         jsonEncode(data),
       );
-      
-      print('Received response: $response');  // Debug print
 
+      // Jika respons berhasil, reset text dan ambil pesan baru
       if (response != null) {
         _messageController.clear();
         await _fetchMessages();
-        _scrollToBottom();
+        _scrollToBottom(); // Gulir ke bawah setelah pesan baru dikirim
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -75,7 +71,6 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     } catch (e) {
-      print('Error sending message: $e');  // Debug print
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -87,7 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // Also update the fetch messages method to ensure consistent authentication
+  // Fungsi untuk mengambil pesan-pesan dari server
   Future<void> _fetchMessages() async {
     final url = 'http://10.0.2.2:8000/ask_recipe/chat-messages/?group_id=${widget.groupId}';
 
@@ -97,7 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (response['messages'] != null) {
         setState(() {
-          _messages.clear();
+          _messages.clear(); // Menghapus pesan sebelumnya
           _messages.addAll(
             List<Message>.from(
               response['messages'].map((msg) => Message(
@@ -109,7 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ))),
           );
         });
-        _scrollToBottom();
+        _scrollToBottom(); // Gulir ke bawah setelah pesan diambil
       }
     } catch (e) {
       if (mounted) {
@@ -118,8 +113,9 @@ class _ChatScreenState extends State<ChatScreen> {
         );
       }
     }
-}
+  }
 
+  // Fungsi untuk menghapus pesan
   Future<void> _deleteMessage(String messageId) async {
     final url = 'http://10.0.2.2:8000/ask_recipe/delete_chat_message/$messageId/';
 
@@ -171,18 +167,20 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  // Fungsi untuk menggulirkan tampilan ke bawah
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300), // Smooth scroll duration
+          duration: const Duration(milliseconds: 300), // Durasi scroll halus
           curve: Curves.easeOut,
         );
       }
     });
   }
 
+  // Fungsi untuk memperbarui tampilan setelah pesan dihapus
   void _refreshMessages(String messageId) {
     setState(() {
       _messages.removeWhere((msg) => msg.id == messageId);
@@ -190,38 +188,51 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom(); // Gulir ke bawah setelah pesan dihapus
   }
 
-  // Fungsi untuk menentukan warna pesan berdasarkan sender
+  // Fungsi untuk menentukan warna pesan berdasarkan pengirim
   Color _getMessageColor(String sender) {
     // Jika sender adalah admin, gunakan warna khusus
     if (sender == 'admin') {
       return const Color.fromARGB(255, 85, 3, 0); // Warna khusus untuk admin
     }
 
-    // Jika sender belum memiliki warna, tetapkan warna acak dalam rumpun merah
+    // Jika sender belum memiliki warna, tetapkan warna acak di rumpun merah
     if (!_userColors.containsKey(sender)) {
-      final hash = sender.hashCode;
-      final red = 100 + (hash % 156);
-      final green = 0 + (hash % 101);
-      final blue = 0 + (hash % 101);
+      final random = Random(sender.hashCode); // Seed dengan hash pengirim
+      
+      // Menghasilkan nilai untuk red (harus lebih besar dari hijau dan biru)
+      final red = random.nextInt(156) + 100;  // Merah lebih dominan
+      final green = random.nextInt(101);      // Hijau lebih kecil
+      final blue = random.nextInt(101);       // Biru lebih kecil
+
+      // Pastikan nilai red lebih besar dari green dan blue untuk tetap di rumpun merah
       _userColors[sender] = Color.fromARGB(255, red, green, blue);
     }
 
-    return _userColors[sender]!;
+    return _userColors[sender]!; // Mengembalikan warna pengirim pesan
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.groupName,
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+    appBar: AppBar(
+      leading: IconButton(
+        icon: const Icon(
+          Icons.arrow_back,
+          color: Colors.white,
         ),
-        backgroundColor: const Color(0xFF800000),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+      title: Text(
+        widget.groupName,
+        style: const TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      backgroundColor: const Color(0xFF800000),
       ),
       body: Column(
         children: [
@@ -265,13 +276,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                   decoration: BoxDecoration(
                                     color: _getMessageColor(message.sender),
                                     borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
                                   ),
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(16),
@@ -299,7 +303,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                             child: Text(
                                               DateFormat('HH:mm').format(message.timestamp),
                                               style: TextStyle(
-                                                color: Colors.white.withOpacity(0.8),
+                                                color: Colors.white,
                                                 fontSize: 12,
                                               ),
                                             ),
@@ -333,7 +337,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     maxLines: null, // Memungkinkan teks membungkus ke bawah jika terlalu panjang
                     onSubmitted: (text) {
-                      // Mengirim pesan saat tombol Enter ditekan
                       if (text.trim().isNotEmpty) {
                         _sendMessage(text.trim());
                       }
@@ -358,6 +361,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  // Fungsi untuk menunjukkan dialog konfirmasi penghapusan pesan
   void _showDeleteConfirmationDialog(String messageId) {
     showDialog(
       context: context,
@@ -386,6 +390,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+// Model pesan untuk digunakan di tampilan pesan
 class Message {
   final String sender;
   final String text;

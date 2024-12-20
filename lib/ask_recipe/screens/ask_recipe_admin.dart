@@ -8,9 +8,12 @@ import 'package:lohkan_app/ask_recipe/screens/create_recipe.dart';
 import 'package:lohkan_app/ask_recipe/models/recipe_entry.dart'; // Import file model
 import 'package:lohkan_app/ask_recipe/screens/view_recipe.dart';
 
+// Widget untuk layar utama admin
 class AskRecipeScreenAdmin extends StatefulWidget {
   final String username;
   final bool isAdmin;
+  
+  // Konstruktor untuk menerima username dan status admin
   const AskRecipeScreenAdmin({super.key, required this.username, this.isAdmin = true});
 
   @override
@@ -21,6 +24,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
   late Future<List<AskRecipeEntry>> _recipesFuture;
   String searchQuery = ''; // Menyimpan kata kunci pencarian
 
+  // Fungsi untuk mengambil daftar resep dari API
   Future<List<AskRecipeEntry>> _fetchRecipes(CookieRequest request) async {
     final String apiUrl = 'http://10.0.2.2:8000/ask_recipe/json/';
 
@@ -31,7 +35,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
         List<AskRecipeEntry> listRecipes = [];
         for (var d in response) {
           if (d != null) {
-            listRecipes.add(AskRecipeEntry.fromJson(d));
+            listRecipes.add(AskRecipeEntry.fromJson(d)); // Menambah resep ke dalam list
           }
         }
         return listRecipes;
@@ -39,17 +43,18 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
         throw Exception('Invalid response format: Expected a List');
       }
     } catch (e) {
-      throw Exception('Error fetching recipes: $e');
+      throw Exception('Error fetching recipes: $e'); // Menangani error saat fetch data
     }
   }
 
-  // Fungsi untuk memperbarui kata kunci pencarian dan memfilter resep
+  // Fungsi untuk memperbarui kata kunci pencarian
   void _updateSearchQuery(String query) {
     setState(() {
       searchQuery = query;
     });
   }
 
+  // Fungsi untuk merefresh daftar resep setelah menambah atau menghapus resep
   void _refreshRecipes() {
     setState(() {
       _recipesFuture = _fetchRecipes(
@@ -57,11 +62,12 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
     });
   }
 
+  // Fungsi untuk inisialisasi state dan mengambil resep ketika halaman pertama kali dibuka
   @override
   void initState() {
     super.initState();
     final request = Provider.of<CookieRequest>(context, listen: false);
-    _recipesFuture = _fetchRecipes(request);
+    _recipesFuture = _fetchRecipes(request); // Memanggil fungsi fetch untuk mendapatkan resep
   }
 
   @override
@@ -74,6 +80,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header dengan judul dan tombol untuk menambah resep baru
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
                   child: Row(
@@ -95,7 +102,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return CreateRecipeScreen(onRecipeAdded: _refreshRecipes);
+                                return CreateRecipeScreen(onRecipeAdded: _refreshRecipes); // Dialog untuk menambah resep
                               },
                             );
                           },
@@ -118,7 +125,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                   ),
                 ),
 
-                // Search Bar with proper placeholder
+                // Search Bar untuk mencari resep
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Container(
@@ -127,7 +134,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
-                      onChanged: _updateSearchQuery, // Menangani perubahan teks
+                      onChanged: _updateSearchQuery, // Memperbarui kata kunci pencarian
                       decoration: InputDecoration(
                         hintText: 'Find Recipe',
                         hintStyle: TextStyle(
@@ -150,24 +157,24 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
 
                 const SizedBox(height: 16),
 
-                // Recipe List
+                // Daftar resep yang telah difilter berdasarkan pencarian
                 Expanded(
                   child: FutureBuilder<List<AskRecipeEntry>>(
                     future: _recipesFuture,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator()); // Menampilkan loading saat menunggu data
                       }
 
                       if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
+                        return Center(child: Text('Error: ${snapshot.error}')); // Menampilkan error jika terjadi kesalahan
                       }
 
                       if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(child: Text('No recipes available.'));
+                        return const Center(child: Text('No recipes available.')); // Menampilkan pesan jika tidak ada resep
                       }
 
-                      // Filter resep berdasarkan searchQuery
+                      // Memfilter resep berdasarkan kata kunci pencarian
                       final filteredRecipes = snapshot.data!
                           .where((recipe) =>
                               recipe.fields.title
@@ -176,7 +183,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                           .toList();
 
                       if (filteredRecipes.isEmpty) {
-                        return const Center(child: Text('No recipes match your search.'));
+                        return const Center(child: Text('No recipes match your search.')); // Pesan jika tidak ada resep yang sesuai pencarian
                       }
 
                       return ListView.builder(
@@ -184,8 +191,8 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                         itemCount: filteredRecipes.length,
                         itemBuilder: (context, index) {
                           final recipe = filteredRecipes[index];
-                          final String recipeId = recipe.pk; // No need to parse to int
-                           final String groupId = recipe.fields.group;  // Make sure this field exists in your model
+                          final String recipeId = recipe.pk; // ID resep
+                          final String groupId = recipe.fields.group;  // ID grup resep
 
                           return _buildRecipeGroup(
                             title: recipe.fields.title,
@@ -194,8 +201,8 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                             instructions: recipe.fields.instructions,
                             cookingTime: recipe.fields.cookingTime,
                             servings: recipe.fields.servings,
-                            recipeId: recipeId, // Pass UUID directly as string
-                            groupId: groupId,
+                            recipeId: recipeId, // ID resep
+                            groupId: groupId, // ID grup
                           );
                         },
                       );
@@ -210,6 +217,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
     );
   }
 
+  // Widget untuk membangun tampilan grup resep
   Widget _buildRecipeGroup({
     required String title,
     required String imageUrl,
@@ -220,10 +228,6 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
     required String recipeId,
     required String groupId,
   }) {
-
-    // Debug the imageUrl URL
-    print('Image URL: $imageUrl');
-
     return Dismissible(
       key: Key(recipeId),
       direction: DismissDirection.endToStart,
@@ -249,7 +253,6 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
         );
       },
       background: Container(
-
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.red,
@@ -270,7 +273,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
         ),
       ),
       onDismissed: (direction) {
-        _deleteRecipe(recipeId);
+        _deleteRecipe(recipeId); // Menghapus resep jika di swipe
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -289,16 +292,16 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
           },
           style: ElevatedButton.styleFrom(
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12), // Rounded corners
+              borderRadius: BorderRadius.circular(12), // Menambahkan border radius
             ),
-            elevation: 2, // Shadow effect
-            side: BorderSide(color: Colors.grey[300]!), // Border color
+            elevation: 2, // Menambahkan efek bayangan
+            side: BorderSide(color: Colors.grey[300]!), // Warna border
             minimumSize: const Size.fromHeight(80),
             padding: const EdgeInsets.all(12),
           ),
           child: Row(
             children: [
-              // Recipe Image
+              // Menampilkan gambar resep
               ClipRRect(
                 borderRadius: BorderRadius.circular(25),
                 child: Image.network(
@@ -306,12 +309,11 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
-
                 ),
               ),
               const SizedBox(width: 12),
 
-              // Recipe Title
+              // Menampilkan judul resep
               Expanded(
                 child: Text(
                   title,
@@ -323,7 +325,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
                 ),
               ),
 
-              // Book Icon (Button)
+              // Tombol menu untuk melihat detail resep
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -356,7 +358,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
     );
   }
 
-  // Add this method to your _AskRecipeScreenState class
+  // Fungsi untuk menghapus resep berdasarkan ID
   Future<void> _deleteRecipe(String recipeId) async {
     final url = Uri.parse('http://10.0.2.2:8000/ask_recipe/delete_recipe/$recipeId/');
 
@@ -367,20 +369,20 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
       );
 
       if (response.statusCode == 200) {
-        // Check if the response is valid JSON
+        // Memeriksa apakah respons valid
         final jsonResponse = json.decode(response.body);
 
-        // Refresh the recipe list after successful deletion
+        // Merefresh daftar resep setelah penghapusan
         _refreshRecipes();
 
-        // Show a snackbar to confirm deletion
+        // Menampilkan snackbar untuk konfirmasi penghapusan
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(jsonResponse['message'])),
           );
         }
       } else {
-        // Handle the error
+        // Menangani error jika penghapusan gagal
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to delete recipe')),
@@ -388,7 +390,7 @@ class _AskRecipeScreenAdminState extends State<AskRecipeScreenAdmin> {
         }
       }
     } catch (e) {
-      // Handle any other exceptions
+      // Menangani exception lainnya
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to delete recipe: $e')),

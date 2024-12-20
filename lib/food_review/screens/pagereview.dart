@@ -238,7 +238,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
   @override
   Widget build(BuildContext context) {
    Future<List<ReviewEntry>> fetchReviews(CookieRequest request) async {
-      final response = await request.get('http://127.0.0.1:8000/food-review/create-review-flutter/json');
+      final response = await request.get('http://10.0.2.2:8000/food-review/create-review-flutter/json');
 
       if (response.statusCode == 200) {
         // Decode the JSON response into a list of dynamic objects
