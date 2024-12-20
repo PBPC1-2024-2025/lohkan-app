@@ -74,7 +74,7 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
   }
 
   Future<void> _createRecipe() async {
-    final url = 'http://10.0.2.2:8000/ask_recipe/create_recipe_flutter/';
+      final url = 'http://10.0.2.2:8000/ask_recipe/create_recipe_flutter/';
 
     // Validasi input fields
     if (_titleController.text.isEmpty ||

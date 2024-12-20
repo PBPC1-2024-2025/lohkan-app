@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:lohkan_app/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lohkan_app/food_review/models/foodreview_entry.dart';
@@ -181,7 +181,12 @@ class _PageFoodReviewState extends State<PageFoodReview> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
+                  // final request = Provider.of<CookieRequest>(context, listen: false);
+                  // final userId = request.cookies['user_id'];
+                  // print(userId);
+
                   if (_formKey.currentState!.validate()) {
+
                     // Perform POST request
                     var response = await http.post(
                       Uri.parse('http://10.0.2.2:8000/food-review/create-review-flutter/'),
@@ -189,7 +194,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                         'Content-Type': 'application/json; charset=UTF-8',
                       },
                       body: jsonEncode({
-                        'user': request.cookies['user_id'],
+                        // 'user': userId,
                         'name': foodNameController.text,
                         'food_type': selectedFoodType,
                         'rating': selectedRating,

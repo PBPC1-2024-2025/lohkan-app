@@ -13,7 +13,9 @@ import 'package:lohkan_app/explore/screens/explore.dart';
 
 class HomePage extends StatefulWidget {
   final String username;
+  // final String userId;
   // const HomePage({super.key});
+  // const HomePage({super.key, required this.username, required this.userId});
   const HomePage({super.key, required this.username});
 
   @override

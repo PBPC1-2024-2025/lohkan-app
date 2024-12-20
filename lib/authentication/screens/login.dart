@@ -116,7 +116,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () async {
                   String username = _usernameController.text;
                   String password = _passwordController.text;
-
+            
                   // Proses login
                   final response =
                       await request.login("http://10.0.2.2:8000/auth/login/", {
@@ -130,11 +130,14 @@ class _LoginPageState extends State<LoginPage> {
                     String message = response['message'];
                     String uname = response['username'];
                     // String userId = response['user_id'];
+                    // print("User ID: $userId");
+                    
 
                     if (context.mounted) {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
+                          // builder: (context) => HomePage(username: uname, userId: userId),
                           builder: (context) => HomePage(username: uname),
                         ),
                       );

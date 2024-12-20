@@ -112,8 +112,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
                   if (context.mounted) {
                     if (response['status'] == 'success') {
-                      // String userId = response['user_id'];
                       // final request = Provider.of<CookieRequest>(context, listen: false);
+                      // String userId = response['user_id'];
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Successfully registered!'),
