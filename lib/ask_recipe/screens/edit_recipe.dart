@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
+// Widget untuk layar edit resep
 class EditRecipeScreen extends StatefulWidget {
   final String title;
   final String ingredients;
@@ -13,7 +14,7 @@ class EditRecipeScreen extends StatefulWidget {
   final int cookingTime;
   final int servings;
   final String recipeId;
-  final String? imageUrl; // URL gambar yang sudah ada
+  final String? imageUrl;  // Menyimpan URL gambar resep (gambar lama)
   final Function(String, String, String, int, int)? onRecipeUpdated;
 
   const EditRecipeScreen({
@@ -24,8 +25,8 @@ class EditRecipeScreen extends StatefulWidget {
     required this.cookingTime,
     required this.servings,
     required this.recipeId,
-    this.imageUrl,
-    this.onRecipeUpdated,
+    required this.onRecipeUpdated,
+    this.imageUrl,  // Gambar lama yang diterima sebagai parameter
   });
 
   @override
@@ -33,21 +34,22 @@ class EditRecipeScreen extends StatefulWidget {
 }
 
 class _EditRecipeScreenState extends State<EditRecipeScreen> {
+  // Controller untuk mengatur nilai teks di setiap input field
   final _titleController = TextEditingController();
   final _ingredientsController = TextEditingController();
   final _instructionsController = TextEditingController();
   final _cookingTimeController = TextEditingController();
   final _servingsController = TextEditingController();
 
-  File? _image; // File gambar baru
+  File? _image; // File gambar baru (jika diubah)
   final ImagePicker _picker = ImagePicker();
 
-  String? _errorMessage;
+  String? _errorMessage; // Menyimpan pesan error jika ada
 
   @override
   void initState() {
     super.initState();
-    // Pre-populate the fields with existing recipe data
+    // Mengisi field dengan data resep yang sudah ada saat pertama kali tampil
     _titleController.text = widget.title;
     _ingredientsController.text = widget.ingredients;
     _instructionsController.text = widget.instructions;
@@ -55,6 +57,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     _servingsController.text = widget.servings.toString();
   }
 
+  // Fungsi untuk memilih gambar dari kamera atau galeri
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
 
@@ -62,16 +65,17 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
       final imagePath = pickedFile.path;
       if (await File(imagePath).exists()) {
         setState(() {
-          _image = File(imagePath);
+          _image = File(imagePath); // Menyimpan gambar yang dipilih
         });
       } else {
-        print('File not found: $imagePath');
+        print('File not found: $imagePath'); // Menampilkan pesan jika file tidak ditemukan
       }
     } else {
-      print('No image selected.');
+      print('No image selected.'); // Menampilkan pesan jika tidak ada gambar yang dipilih
     }
   }
 
+  // Menampilkan modal untuk memilih gambar dari kamera atau galeri
   void _showImagePickerModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -80,20 +84,22 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Pilihan untuk mengambil foto menggunakan kamera
               ListTile(
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Take Photo'),
                 onTap: () {
-                  Navigator.pop(context); // Tutup modal
-                  _pickImage(ImageSource.camera); // Ambil gambar dari kamera
+                  Navigator.pop(context); // Menutup modal
+                  _pickImage(ImageSource.camera); // Mengambil gambar dari kamera
                 },
               ),
+              // Pilihan untuk memilih gambar dari galeri
               ListTile(
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Choose from Gallery'),
                 onTap: () {
-                  Navigator.pop(context); // Tutup modal
-                  _pickImage(ImageSource.gallery); // Ambil gambar dari galeri
+                  Navigator.pop(context); // Menutup modal
+                  _pickImage(ImageSource.gallery); // Mengambil gambar dari galeri
                 },
               ),
             ],
@@ -103,57 +109,63 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     );
   }
 
+  // Fungsi untuk mengupdate resep di server
   Future<void> _updateRecipe(CookieRequest request) async {
     final recipeId = widget.recipeId.toString(); // Pastikan recipeId adalah string
     final url = 'http://10.0.2.2:8000/ask_recipe/update_recipe_flutter/$recipeId/';
 
+    // Validasi input waktu memasak dan jumlah porsi
     final cookingTime = int.tryParse(_cookingTimeController.text);
     final servings = int.tryParse(_servingsController.text);
 
     if (cookingTime == null || servings == null) {
       setState(() {
-        _errorMessage = 'Cooking time and servings must be valid numbers!';
+        _errorMessage = 'Cooking time and servings must be valid numbers!'; // Pesan error jika bukan angka
       });
       return;
     }
 
     if (cookingTime <= 0 || servings <= 0) {
       setState(() {
-        _errorMessage = 'Cooking time and servings must be greater than 0!';
+        _errorMessage = 'Cooking time and servings must be greater than 0!'; // Pesan error jika kurang dari atau sama dengan 0
       });
       return;
     }
-    
+
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
 
-      // Tambahkan field teks
+      // Menambahkan data resep ke request
       request.fields['title'] = _titleController.text;
       request.fields['ingredients'] = _ingredientsController.text;
       request.fields['instructions'] = _instructionsController.text;
       request.fields['cooking_time'] = cookingTime.toString();
       request.fields['servings'] = servings.toString();
 
-      // Tambahkan gambar jika ada
+      // Menambahkan gambar baru jika ada
       if (_image != null) {
         var stream = http.ByteStream(_image!.openRead());
         var length = await _image!.length();
         var multipartFile = http.MultipartFile(
-          'image', // Nama field yang sama dengan di Django
+          'image', // Nama field yang sesuai dengan di Django
           stream,
           length,
           filename: _image!.path.split('/').last,
         );
         request.files.add(multipartFile);
+      } else if (widget.imageUrl != null) {
+        // Gunakan gambar lama jika tidak ada gambar baru
+        request.fields['image_url'] = widget.imageUrl!; // Mengirimkan gambar lama
       }
 
-      // Kirim request
+      // Kirim request ke server
       var response = await request.send();
 
-      // Periksa status code
+      // Periksa status code dari server
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
 
+        // Jika berhasil, panggil callback untuk update resep di halaman sebelumnya
         widget.onRecipeUpdated?.call(
           _titleController.text,
           _ingredientsController.text,
@@ -162,17 +174,16 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
           servings,
         );
 
+        // Tampilkan pesan sukses
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Recipe updated successfully')),
         );
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(); // Kembali ke layar sebelumnya
       } else {
-        // Baca respons dari server
+        // Jika status code bukan 200 atau 201, baca body respons dari server
         var responseBody = await response.stream.bytesToString();
-        print('Response status: ${response.statusCode}');
-        print('Response body: $responseBody');
 
-        // Tangani respons yang tidak valid
+        // Jika body respons kosong
         if (responseBody.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Server returned an empty response')),
@@ -180,24 +191,22 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
           return;
         }
 
-        // Coba parse respons sebagai JSON
+        // Jika gagal parse JSON, tampilkan pesan error
         try {
           var jsonResponse = json.decode(responseBody);
-          String errorMessage = jsonResponse['message'] ?? 'Terjadi kesalahan';
+          String errorMessage = jsonResponse['message'] ?? 'There is an error';
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal memperbarui resep: $errorMessage')),
+            SnackBar(content: Text('Failed to update recipe: $errorMessage')),
           );
         } catch (e) {
-          // Jika parsing JSON gagal, tampilkan pesan kesalahan
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Invalid response from server: $responseBody')),
           );
         }
       }
     } catch (e) {
-      print('Error updating recipe: $e');
       setState(() {
-        _errorMessage = 'Error updating recipe: $e';
+        _errorMessage = 'Error updating recipe: $e'; // Pesan error jika ada kesalahan dalam update
       });
     }
   }
@@ -215,7 +224,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Handle untuk drag
+              // Handle untuk drag (untuk menarik modal ke atas)
               Center(
                 child: Container(
                   width: 50,
@@ -228,7 +237,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                 ),
               ),
 
-              // Judul
+              // Judul form
               const Text(
                 'Edit Recipe',
                 style: TextStyle(
@@ -239,7 +248,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Isi form
+              // Form input untuk data resep
               _buildTextField('Recipe Title', _titleController),
               const SizedBox(height: 16),
               _buildMultilineTextField('Ingredients', _ingredientsController),
@@ -252,7 +261,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
 
               const SizedBox(height: 16),
 
-              // Gambar resep
+              // Bagian untuk memilih gambar resep
               GestureDetector(
                 onTap: () => _showImagePickerModal(context),
                 child: Container(
@@ -260,7 +269,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                   height: 55,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.grey[600]!, // Warna border yang lebih gelap
+                      color: Colors.grey[600]!, // Warna border lebih gelap
                       width: 1.0,
                     ),
                     borderRadius: BorderRadius.circular(5),
@@ -269,23 +278,34 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                       ? ClipRRect(
                     borderRadius: BorderRadius.circular(5),
                     child: Image.file(
-                      _image!, // Pastikan _image tidak null
+                      _image!, // Menampilkan gambar yang dipilih
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: 55,
                     ),
                   )
-                      : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.add_a_photo),
-                      SizedBox(width: 10),
-                      Text('Add a photo'),
-                    ],
-                  ),
+                      : widget.imageUrl != null
+                          ? ClipRRect(
+                            borderRadius: BorderRadius.circular(5),
+                            child: Image.network(
+                              widget.imageUrl!, // Menampilkan gambar lama jika ada
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 55,
+                            ),
+                          )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(Icons.add_a_photo),
+                                SizedBox(width: 10),
+                                Text('Add a photo'),
+                              ],
+                            ),
                 ),
               ),
 
+              // Menampilkan pesan error jika ada
               if (_errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -297,18 +317,20 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
 
               const SizedBox(height: 24),
 
+              // Tombol untuk menyimpan perubahan
               ElevatedButton(
                 onPressed: () {
+                  // Validasi apakah semua field terisi
                   if (_titleController.text.isNotEmpty &&
                       _ingredientsController.text.isNotEmpty &&
                       _instructionsController.text.isNotEmpty &&
                       _cookingTimeController.text.isNotEmpty &&
-                      _servingsController.text.isNotEmpty && _image != null) {
+                      _servingsController.text.isNotEmpty) {
                     final request = Provider.of<CookieRequest>(context, listen: false);
-                    _updateRecipe(request);
+                    _updateRecipe(request); // Memanggil fungsi update resep
                   } else {
                     setState(() {
-                      _errorMessage = 'All fields are required!';
+                      _errorMessage = 'All fields are required!'; // Pesan error jika ada field yang kosong
                     });
                   }
                 },
@@ -328,6 +350,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     );
   }
 
+  // Widget untuk field input teks biasa
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
@@ -340,6 +363,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     );
   }
 
+  // Widget untuk field input teks multiline
   Widget _buildMultilineTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,

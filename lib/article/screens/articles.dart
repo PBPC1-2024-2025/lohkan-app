@@ -21,7 +21,7 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
 
   // Fungsi untuk mengambil data dari API
   Future<List<ArticleEntry>> fetchArticles() async {
-    final response = await http.get(Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/article/json/'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/article/json/'));
     if (response.statusCode == 200) {
       return articleEntryFromJson(response.body);
     } else {
@@ -199,7 +199,7 @@ void _addArticle(BuildContext context) async {
       // Buat MultipartRequest
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/article/create-article-flutter/'),
+        Uri.parse('http://10.0.2.2:8000/article/create-article-flutter/'),
       );
 
       // Tambahkan field form
@@ -338,7 +338,7 @@ void _showEditArticleDialog(ArticleEntry article) {
     final description = _descriptionController.text;
 
     if (title.isNotEmpty && description.isNotEmpty) {
-      final url = Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/article/edit-article/$articleId');
+      final url = Uri.parse('http://10.0.2.2:8000/article/edit-article/$articleId');
       var request = http.MultipartRequest('POST', url);
 
       request.fields['title'] = title;
@@ -382,7 +382,7 @@ void _showEditArticleDialog(ArticleEntry article) {
   }
 
   void _deleteArticle(String articleId) async {
-  final url = Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/article/delete/$articleId');
+  final url = Uri.parse('http://10.0.2.2:8000/article/delete/$articleId');
 
   try {
     final response = await http.delete(url);

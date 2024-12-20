@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lohkan_app/ask_recipe/screens/edit_recipe.dart';
 
+// Widget untuk layar detail resep
 class RecipeDetailScreen extends StatefulWidget {
   final String title;
   final String imageUrl;
@@ -30,7 +31,7 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  bool _isEditMode = false;
+  bool _isEditMode = false;  // Menyimpan status mode edit, apakah sedang mengedit resep
   late String _title;
   late String _ingredients;
   late String _instructions;
@@ -40,7 +41,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Set initial values from widget properties
+    // Menyimpan nilai-nilai awal dari widget properties
     _title = widget.title;
     _ingredients = widget.ingredients;
     _instructions = widget.instructions;
@@ -48,15 +49,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     _servings = widget.servings;
   }
 
+  // Fungsi untuk toggle mode edit (ubah status edit mode)
   void _toggleEditMode() {
     setState(() {
-      _isEditMode = !_isEditMode;
+      _isEditMode = !_isEditMode;  // Ubah status _isEditMode
     });
   }
 
-  // This function will be called after the recipe is updated
+  // Fungsi ini akan dipanggil setelah resep diupdate
   void _refreshRecipe(String newTitle, String newIngredients, String newInstructions, int newCookingTime, int newServings) {
     setState(() {
+      // Update nilai resep dengan yang baru
       _title = newTitle;
       _ingredients = newIngredients;
       _instructions = newInstructions;
@@ -64,6 +67,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       _servings = newServings;
     });
 
+    // Panggil callback untuk memberi tahu halaman utama bahwa resep telah diperbarui
     widget.onRecipeUpdated?.call();
   }
 
@@ -77,7 +81,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(); // Kembali ke halaman sebelumnya
           },
         ),
         titleSpacing: 0,
@@ -98,11 +102,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   Icons.edit,
                   color: Colors.white,
                 ),
-                onPressed: _toggleEditMode,
+                onPressed: _toggleEditMode,  // Jika di klik, toggle mode edit
               ),
             ),
         ],
-        backgroundColor: const Color(0xFF800000),
+        backgroundColor: const Color(0xFF800000), // Warna latar belakang app bar
       ),
       body: Stack(
         children: [
@@ -112,18 +116,20 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Gambar resep yang ditampilkan
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.network(
                       widget.imageUrl,
                       width: double.infinity,
                       height: 200,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.cover,  // Memastikan gambar menyesuaikan dengan ukuran
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Widget untuk menampilkan detail resep
                   RecipeDetailsWidget(
-                    title: _title,  // Use the local state here
+                    title: _title,  // Menggunakan nilai state lokal
                     cookingTime: _cookingTime,
                     servings: _servings,
                     ingredients: _ingredients,
@@ -133,7 +139,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               ),
             ),
           ),
-          if (_isEditMode && widget.isAdmin) // Menampilkan EditRecipeScreen hanya jika pengguna adalah admin
+          // Jika dalam mode edit dan pengguna adalah admin, tampilkan EditRecipeScreen
+          if (_isEditMode && widget.isAdmin) 
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -158,7 +165,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   instructions: _instructions,
                   cookingTime: _cookingTime,
                   servings: _servings,
-                  onRecipeUpdated: _refreshRecipe,  // Callback to update UI
+                  onRecipeUpdated: _refreshRecipe,  // Callback untuk update UI
                 ),
               ),
             ),
@@ -168,6 +175,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
   }
 }
 
+// Widget untuk menampilkan detail resep seperti bahan dan instruksi
 class RecipeDetailsWidget extends StatelessWidget {
   final String title;
   final int cookingTime;
@@ -186,6 +194,20 @@ class RecipeDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Pisahkan ingredients berdasarkan titik (.)
+    List<String> ingredientList = ingredients
+        .split('.')
+        .map((ingredient) => ingredient.trim())
+        .where((ingredient) => ingredient.isNotEmpty)
+        .toList();
+
+    // Pisahkan instructions berdasarkan titik (.)
+    List<String> instructionList = instructions
+        .split('.')
+        .map((instruction) => instruction.trim())
+        .where((instruction) => instruction.isNotEmpty)
+        .toList();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -193,7 +215,7 @@ class RecipeDetailsWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey,
             spreadRadius: 1,
             blurRadius: 2,
             offset: const Offset(0, 1),
@@ -203,6 +225,7 @@ class RecipeDetailsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Judul resep dan nama pembuat
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -217,6 +240,7 @@ class RecipeDetailsWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+          // Menampilkan informasi waktu memasak dan jumlah porsi
           Row(
             children: [
               const Icon(Icons.access_time, size: 18),
@@ -237,7 +261,14 @@ class RecipeDetailsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(ingredients),
+          // Menampilkan bahan-bahan dengan tanda '-'
+          ...ingredientList.map((ingredient) {
+            return Text(
+              '- $ingredient',
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
+            );
+          }),
+
           const SizedBox(height: 16),
           const Text(
             'Instructions :',
@@ -247,9 +278,19 @@ class RecipeDetailsWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Text(instructions),
+          // Menampilkan instruksi dengan angka 1., 2., 3.
+          ...instructionList.asMap().entries.map((entry) {
+            int index = entry.key;
+            String instruction = entry.value;
+            return Text(
+              '${index + 1}. $instruction',  // Menambahkan nomor instruksi
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
+            );
+          }),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 }
+
