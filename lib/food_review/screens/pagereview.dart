@@ -81,7 +81,8 @@ class _PageFoodReviewState extends State<PageFoodReview> {
 
     // Function to show popup
   void _showAddReviewDialog(BuildContext context) {
-  final request = Provider.of<CookieRequest>(context, listen: false);
+  // final request = Provider.of<CookieRequest>(context); // pakai yg di web pbp
+  final request = context.read<CookieRequest>();
 
   // Controllers for text fields
   final TextEditingController foodNameController = TextEditingController();
@@ -188,13 +189,9 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                   if (_formKey.currentState!.validate()) {
 
                     // Perform POST request
-                    var response = await http.post(
-                      Uri.parse('http://10.0.2.2:8000/food-review/create-review-flutter/'),
-                      headers: <String, String>{
-                        'Content-Type': 'application/json; charset=UTF-8',
-                      },
-                      body: jsonEncode({
-                        // 'user': userId,
+                    var response = await request.postJson(
+                      'http://10.0.2.2:8000/food-review/create-review-flutter/',
+                      jsonEncode({
                         'name': foodNameController.text,
                         'food_type': selectedFoodType,
                         'rating': selectedRating,
@@ -202,8 +199,8 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                       }),
                     );
                   
-                    print(response.statusCode);
-                    if (response.statusCode == 201 || response.statusCode == 200) {
+                   
+                    if (response["status"] == "success") { 
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text("Review successfully created!"),
                         backgroundColor: Colors.green,
