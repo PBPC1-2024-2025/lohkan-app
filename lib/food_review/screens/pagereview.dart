@@ -78,7 +78,6 @@ class _PageFoodReviewState extends State<PageFoodReview> {
   }
 
 
-
     // Function to show popup
   void _showAddReviewDialog(BuildContext context) {
   final request = Provider.of<CookieRequest>(context, listen: false);
@@ -86,14 +85,13 @@ class _PageFoodReviewState extends State<PageFoodReview> {
   // Controllers for text fields
   final TextEditingController foodNameController = TextEditingController();
   final TextEditingController commentsController = TextEditingController();
-  TextEditingController searchController = TextEditingController();
-
 
   // State variables for dropdown selections
   String? selectedFoodType;
   int? selectedRating = 1;
 
   showModalBottomSheet(
+    
     context: context,
     isScrollControlled: true,
     shape: RoundedRectangleBorder(
@@ -179,9 +177,12 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                 },
               ),
               SizedBox(height: 20),
+
+              
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
+                    
                     // Perform POST request
                     var response = await http.post(
                       Uri.parse('http://127.0.0.1:8000/food-review/create-review-flutter/'),
@@ -189,6 +190,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                         'Content-Type': 'application/json; charset=UTF-8',
                       },
                       body: jsonEncode({
+                       
                         'name': foodNameController.text,
                         'food_type': selectedFoodType,
                         'rating': selectedRating,
@@ -231,22 +233,22 @@ class _PageFoodReviewState extends State<PageFoodReview> {
 
   @override
   Widget build(BuildContext context) {
-   Future<List<ReviewEntry>> fetchReviews(CookieRequest request) async {
-      final response = await request.get('http://127.0.0.1:8000/food-review/create-review-flutter/json');
+  //  Future<List<ReviewEntry>> fetchReviews(CookieRequest request) async {
+  //     final response = await request.get('http://127.0.0.1:8000/food-review/create-review-flutter/json');
 
-      if (response.statusCode == 200) {
-        // Decode the JSON response into a list of dynamic objects
-        List<dynamic> jsonResponse = jsonDecode(response.body);
+  //     if (response.statusCode == 200) {
+  //       // Decode the JSON response into a list of dynamic objects
+  //       List<dynamic> jsonResponse = jsonDecode(response.body);
 
-        // Filter and convert the JSON objects to ReviewEntry instances only if they match the search query
-        return jsonResponse.map((d) => ReviewEntry.fromJson(d)).where((review) {
-          return review.fields.name.toLowerCase().contains(_searchQuery.toLowerCase()) && 
-                (filter == 'All' || review.fields.foodType == filter);
-        }).toList();
-      } else {
-        throw Exception('Failed to fetch reviews');
-      }
-    }
+  //       // Filter and convert the JSON objects to ReviewEntry instances only if they match the search query
+  //       return jsonResponse.map((d) => ReviewEntry.fromJson(d)).where((review) {
+  //         return review.fields.name.toLowerCase().contains(_searchQuery.toLowerCase()) && 
+  //               (filter == 'All' || review.fields.foodType == filter);
+  //       }).toList();
+  //     } else {
+  //       throw Exception('Failed to fetch reviews');
+  //     }
+  //   }
 
     return Scaffold(
       body:
