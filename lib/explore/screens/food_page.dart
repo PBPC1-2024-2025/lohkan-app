@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:lohkan_app/bucket_list/models/bucketlist_entry.dart';
 
 class FoodPage extends StatefulWidget {
-  final food;
+  final dynamic food;
   final String username;
   const FoodPage({super.key, this.food, required this.username});
 

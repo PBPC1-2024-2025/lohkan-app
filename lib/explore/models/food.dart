@@ -75,14 +75,14 @@ class Fields {
       };
 }
 
-enum Type { DR, DS, MC, SN }
+enum Type { dr, ds, mc, sn }
 
 final typeValues =
-    EnumValues({"DR": Type.DR, "DS": Type.DS, "MC": Type.MC, "SN": Type.SN});
+    EnumValues({"DR": Type.dr, "DS": Type.ds, "MC": Type.mc, "SN": Type.sn});
 
-enum Model { EXPLORE_FOOD }
+enum Model { exploreFood }
 
-final modelValues = EnumValues({"explore.food": Model.EXPLORE_FOOD});
+final modelValues = EnumValues({"explore.food": Model.exploreFood});
 
 class EnumValues<T> {
   Map<String, T> map;

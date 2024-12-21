@@ -37,11 +37,11 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
         setState(() {
           _image = File(imagePath);  // Set gambar yang dipilih
         });
+      } 
       } else {
-        print('File not found: $imagePath');
-      }
-    } else {
-      print('No image selected.');
+        setState(() {
+          _errorMessage = 'No image selected';  // Pesan error jika tidak ada gambar yang dipilih
+      });
     }
   }
 

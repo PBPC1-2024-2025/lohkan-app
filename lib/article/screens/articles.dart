@@ -42,7 +42,6 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
         });
       }
     } catch (e) {
-      print('Error picking image: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to pick image: $e')),
       );
@@ -247,7 +246,6 @@ void _addArticle(BuildContext context) async {
       );
     }
   } catch (e) {
-    print('Error adding article: $e');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Error: $e')),
     );
@@ -523,7 +521,7 @@ void _showEditArticleDialog(ArticleEntry article) {
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.5),
+                                        color: Colors.black.withAlpha((0.5 * 255).toInt()),
                                         borderRadius: const BorderRadius.only(
                                           bottomLeft: Radius.circular(16),
                                           bottomRight: Radius.circular(16),

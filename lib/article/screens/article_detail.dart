@@ -59,10 +59,14 @@ Future<void> _fetchComments() async {
         });
       }
     } else {
-      print('Failed to load article');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load comments')),
+      );
     }
   } catch (e) {
-    print('Error fetching article: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to load comments: $e')),
+    );
   }
 }
 
@@ -70,7 +74,7 @@ Future<void> _fetchComments() async {
     Future<void> _addComment(String content) async {
       final request = Provider.of<CookieRequest>(context, listen: false);
       try {
-        final response = await request.postJson(
+        await request.postJson(
         'http://10.0.2.2:8000/article/article/${widget.articleId}/add_comment_flutter/', 
 
         jsonEncode(<String, String>{
@@ -79,8 +83,7 @@ Future<void> _fetchComments() async {
         }));
         
         _fetchComments(); // Refresh daftar komentar
-    } catch (e) {
-      print('Error adding comment: $e');
+      } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Terjadi kesalahan: $e')),
       );

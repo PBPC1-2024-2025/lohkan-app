@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ReviewEntryFormPage extends StatefulWidget {
-  const ReviewEntryFormPage({Key? key}) : super(key: key);
+  const ReviewEntryFormPage({super.key});
 
   @override
   State<ReviewEntryFormPage> createState() => _ReviewEntryFormPageState();

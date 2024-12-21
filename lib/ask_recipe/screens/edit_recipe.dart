@@ -67,12 +67,8 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         setState(() {
           _image = File(imagePath); // Menyimpan gambar yang dipilih
         });
-      } else {
-        print('File not found: $imagePath'); // Menampilkan pesan jika file tidak ditemukan
-      }
-    } else {
-      print('No image selected.'); // Menampilkan pesan jika tidak ada gambar yang dipilih
-    }
+      } 
+    } 
   }
 
   // Menampilkan modal untuk memilih gambar dari kamera atau galeri

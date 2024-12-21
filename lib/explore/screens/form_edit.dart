@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 class EditFoodForm extends StatefulWidget {
   final String username;
-  final food;
+  final dynamic food;
   const EditFoodForm({super.key, required this.username, required this.food});
   @override
   State<EditFoodForm> createState() => _EditFoodFormState();

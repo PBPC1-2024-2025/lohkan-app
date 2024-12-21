@@ -7,13 +7,13 @@ import 'package:provider/provider.dart';
 import 'see_reviews.dart'; // Ensure this points to your DetailScreen
 
 class PageFoodReview extends StatefulWidget {
-  const PageFoodReview({Key? key}) : super(key: key);
+  const PageFoodReview({super.key});
 
   @override
-  _PageFoodReviewState createState() => _PageFoodReviewState();
+  PageFoodReviewState createState() => PageFoodReviewState();
 }
 
-class _PageFoodReviewState extends State<PageFoodReview> {
+class PageFoodReviewState extends State<PageFoodReview> {
   String _searchQuery = '';
   late Future<Map<String, dynamic>> futureFoodReviews;
   final _formKey = GlobalKey<FormState>();
@@ -193,10 +193,12 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                       futureFoodReviews = fetchAndProcessReviews();
 
                       // Show success message
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("Review successfully created!"),
-                        backgroundColor: Colors.green,
-                      ));
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Review successfully created!"),
+                          backgroundColor: Colors.green,
+                        ));
+                      }
 
                       // Close the modal
                       Navigator.pop(context);
@@ -251,7 +253,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                     bool matchesSearch = _searchQuery.isEmpty || reviewDetails.fields.name.toLowerCase().contains(_searchQuery.toLowerCase());
                     return matchesFilter && matchesSearch;
                   }).map((e) => e.value).toList();
-                  var topRatedDishes = snapshot.data!['topRated'];
+                  // var topRatedDishes = snapshot.data!['topRated'];
                  
                   List<String> categories = ['All', 'Main Course', 'Dessert', 'Drinks', 'Snacks'];
                   return CustomScrollView(
@@ -314,7 +316,6 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                               padding: const EdgeInsets.all(10.0),
                               child: ElevatedButton(
                                 onPressed: () {_showAddReviewDialog(context);},
-                                child: Text('Rate Your Food'),
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.white,
                                   backgroundColor: Color(0xFF9B3C3C),
@@ -322,6 +323,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
+                                child: Text('Rate Your Food'),
                               ),
                             ),
                             SizedBox(height: 20),  // Adjust the height value to get the desired spacing
@@ -332,7 +334,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                         floating: true,
                         snap: true,
                         pinned: true,
-                        title: Container(
+                        title: SizedBox(
                           height: 52, // Tetapkan tinggi yang cukup untuk chip dan padding
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
@@ -394,7 +396,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                               color: Colors.white,
                               margin: EdgeInsets.all(10), // Adjust this value to increase the space around each card
                               elevation: 4,
-                              shadowColor: Colors.grey.withOpacity(0.5),
+                              shadowColor: Colors.grey.withAlpha((0.5 * 255).toInt()),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                               child: InkWell(
                                 onTap: () {
@@ -466,7 +468,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                   );
                 } else {
                   return Center(child: Text('No reviews available'));
-                };
+                }
               }
             ),
           ),
@@ -498,7 +500,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
       borderRadius: BorderRadius.circular(10),
       boxShadow: [
         BoxShadow(
-          color: Colors.grey.withOpacity(0.2),
+          color: Colors.grey.withAlpha((0.2 * 255).toInt()),
           spreadRadius: 1,
           blurRadius: 3,
           offset: Offset(0, 1),

@@ -6,7 +6,7 @@ class DetailScreen extends StatelessWidget {
   final String foodName;
   final String foodType;
 
-  DetailScreen({required this.foodName, required this.foodType});
+  const DetailScreen({super.key, required this.foodName, required this.foodType});
 
   Future<Map<String, dynamic>> fetchReviews() async {
     final Uri url = Uri.parse('http://10.0.2.2:8000/food-review/reviews/food/$foodName/$foodType/?format=json');
@@ -66,7 +66,7 @@ class DetailScreen extends StatelessWidget {
                   ),
                   
                   SizedBox(height: 20),
-                  ...reviews.map((review) => ReviewCard(review: review)).toList(),
+                  ...reviews.map((review) => ReviewCard(review: review)),
                 ],
               ),
             );
@@ -82,7 +82,7 @@ class DetailScreen extends StatelessWidget {
 class ReviewCard extends StatelessWidget {
   final dynamic review;
 
-  ReviewCard({required this.review});
+  const ReviewCard({super.key, required this.review});
 
   @override
   Widget build(BuildContext context) {
@@ -103,14 +103,14 @@ class ReviewCard extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha((0.2 * 255).toInt()),
             spreadRadius: 1,
             blurRadius: 3,
             offset: Offset(0, 2),  // changes position of shadow
           ),
         ],
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.withOpacity(0.5), width: 1),
+        border: Border.all(color: Colors.grey.withAlpha((0.5 * 255).toInt()), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

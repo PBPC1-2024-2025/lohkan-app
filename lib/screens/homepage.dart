@@ -219,7 +219,7 @@ void initState() {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.6),
+                            color: Colors.black.withAlpha((0.6 * 255).toInt()),
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Text(
@@ -345,9 +345,9 @@ class _RestaurantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     void launchGoogleMaps() async {
-      final String googleMapsUrl = 'https://www.google.com/maps?q=$latitude,$longitude';
-      if (await canLaunch(googleMapsUrl)) {
-        await launch(googleMapsUrl);
+      final Uri googleMapsUrl = Uri.parse('https://www.google.com/maps?q=$latitude,$longitude');
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl);
       } else {
         throw 'Could not launch $googleMapsUrl';
       }
