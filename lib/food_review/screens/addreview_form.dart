@@ -30,6 +30,8 @@ class _ReviewEntryFormPageState extends State<ReviewEntryFormPage> {
       body: body,
     );
 
+    if (!mounted) return;
+
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Review submitted successfully!')),

@@ -181,6 +181,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
 
         // Jika body respons kosong
         if (responseBody.isEmpty) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Server returned an empty response')),
           );
@@ -191,10 +192,12 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         try {
           var jsonResponse = json.decode(responseBody);
           String errorMessage = jsonResponse['message'] ?? 'There is an error';
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to update recipe: $errorMessage')),
           );
         } catch (e) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Invalid response from server: $responseBody')),
           );

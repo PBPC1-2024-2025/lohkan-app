@@ -173,26 +173,33 @@ class FoodItemCard extends StatelessWidget {
                         );
 
                         if (response['success'] == true) { // Adjust based on your API response
-                          Navigator.pop(context); // Close the bottom sheet
-                          onRemove();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Food item removed successfully'),
-                            ),
-                          );
+                          if (context.mounted) {
+                            Navigator.pop(context); // Close the bottom sheet
+                            onRemove();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Food item removed successfully'),
+                              ),
+                            );
+                          }
                         } else {
+                          if (context.mounted){
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Failed to remove food item'),
+                              ),
+                            );
+                        }
+                        }
+                      } catch (e) {
+
+                        if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Failed to remove food item'),
+                            SnackBar(
+                              content: Text('Error: ${e.toString()}'),
                             ),
                           );
                         }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error: ${e.toString()}'),
-                          ),
-                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(

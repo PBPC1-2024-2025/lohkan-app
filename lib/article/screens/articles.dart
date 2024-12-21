@@ -42,9 +42,11 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to pick image: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick image: $e')),
+        );
+      }
     }
   }
 
@@ -143,7 +145,9 @@ class _ArticleScreenState extends State<ArticleScreenAdmin> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+                if (mounted) {
+                  Navigator.of(context).pop(); // Tutup dialog
+                }
               },
               style: TextButton.styleFrom(
                 foregroundColor: Color(0xFF800000),
@@ -189,9 +193,11 @@ void _addArticle(BuildContext context) async {
       } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) {
         mimeType = 'image/jpeg';
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unsupported image format')),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Unsupported image format')),
+          );
+        }
         return;
       }
 
@@ -220,35 +226,46 @@ void _addArticle(BuildContext context) async {
 
       // Tangani response
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Refresh data atau panggil fetchArticles jika diperlukan
+        if(context.mounted){  
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Article added successfully')),
+          );
+        }
+        // Bersihkan input
+        _titleController.clear();
+        _descriptionController.clear();
+        _imageFile = null;
+        
+        if(context.mounted){
+          Navigator.of(context).pop(); // Tutup dialog
+        }
+         // Refresh data atau panggil fetchArticles jika diperlukan
         await fetchArticles(); // Pastikan metode ini ada untuk memuat ulang daftar artikel
+        setState(() {}); 
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Article added successfully')),
-        );
-
-        // Navigasi ke halaman Articles Page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ArticleScreenAdmin()), // Ganti dengan widget halaman Artikel Anda
-        );
       }
       else {
         // Tangani jika ada error dari server
         var responseBody = await response.stream.bytesToString();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add article: ${response.reasonPhrase}, $responseBody')),
-        );
+        if(context.mounted){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add article: ${response.reasonPhrase}, $responseBody')),
+          );
+        }
       }
     } else {
+      if(context.mounted){
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No image selected')),
       );
+      }
     }
   } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
+    if (context.mounted){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 }
 
@@ -309,6 +326,11 @@ void _showEditArticleDialog(ArticleEntry article) {
         actions: [
           TextButton(
             onPressed: () {
+              // Bersihkan input
+              _titleController.clear();
+              _descriptionController.clear();
+              _imageFile = null;
+
               Navigator.of(context).pop(); // Tutup dialog
             },
             style: TextButton.styleFrom(
@@ -357,25 +379,33 @@ void _showEditArticleDialog(ArticleEntry article) {
         var response = await request.send();
 
         if (response.statusCode == 200 || response.statusCode == 302) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Article updated successfully')),
-          );
-          Navigator.of(context).pop(); // Tutup dialog
-          setState(() {}); // Refresh tampilan
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Article updated successfully')),
+            );
+            Navigator.of(context).pop(); // Tutup dialog
+            setState(() {}); // Refresh tampilan
+          }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update article. Status code: ${response.statusCode}')),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to update article. Status code: ${response.statusCode}')),
+            );
+          }
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e')),
+          );
+        }
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fill all fields')),
+        );
+      }
     }
   }
 
@@ -387,27 +417,37 @@ void _showEditArticleDialog(ArticleEntry article) {
 
     if (response.statusCode == 204) {
       // 204 No Content berarti penghapusan sukses
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Article deleted successfully')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Article deleted successfully')),
+        );
+      }
 
       // Refresh data (panggil fungsi fetch data)
       await fetchArticles(); // Pastikan ada metode ini untuk memuat ulang daftar artikel
 
-      setState(() {}); // Perbarui UI
+      if (mounted) {
+        setState(() {}); // Perbarui UI
+      }
     } else if (response.statusCode == 404) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Article not found')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Article not found')),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete article. Status code: ${response.statusCode}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete article. Status code: ${response.statusCode}')),
+        );
+      }
     }
   } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: $e')),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 }
 

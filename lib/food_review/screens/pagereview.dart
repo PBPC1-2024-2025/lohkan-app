@@ -191,25 +191,29 @@ class PageFoodReviewState extends State<PageFoodReview> {
                     if (response["message"].contains("successfully") || response['statusCode'] == 201) {
                       // Refetch the reviews to update the state
                       futureFoodReviews = fetchAndProcessReviews();
-
+                      
                       // Show success message
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("Review successfully created!"),
-                          backgroundColor: Colors.green,
-                        ));
+                      if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Review successfully created!"),
+                            backgroundColor: Colors.green,
+                          ));
                       }
 
                       // Close the modal
-                      Navigator.pop(context);
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
 
                       // Trigger a state update to refresh the page
                       setState(() {});
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("There was an issue submitting your review. Please try again."),
-                        backgroundColor: Colors.red,
-                      ));
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("There was an issue submitting your review. Please try again."),
+                          backgroundColor: Colors.red,
+                        ));
+                      }
                     }
                   }
                 },

@@ -472,7 +472,7 @@ class _FoodPageState extends State<FoodPage> {
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: const [
                           BoxShadow(
-                            color: Color(0x66696969),
+                            color: Color(0xFF550000),
                             spreadRadius: 0,
                             blurRadius: 3,
                             offset: Offset(0, 2),

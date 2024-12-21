@@ -182,9 +182,11 @@ class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
         var responseBody = await response.stream.bytesToString();
         var jsonResponse = json.decode(responseBody);
         String errorMessage = jsonResponse['message'] ?? 'There is an error';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating recipe: $errorMessage')),  // Tampilkan pesan error jika gagal
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error creating recipe: $errorMessage')),  // Tampilkan pesan error jika gagal
+          );
+        }
       }
     } catch (e) {
       setState(() {
