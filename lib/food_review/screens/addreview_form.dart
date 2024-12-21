@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class ReviewEntryFormPage extends StatefulWidget {
   const ReviewEntryFormPage({Key? key}) : super(key: key);
@@ -26,7 +25,7 @@ class _ReviewEntryFormPageState extends State<ReviewEntryFormPage> {
     });
 
     var response = await http.post(
-      Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/add_review_ajax/'),
+      Uri.parse('http://10.0.2.2:8000/add_review_ajax/'),
       headers: {'Content-Type': 'application/json'},
       body: body,
     );

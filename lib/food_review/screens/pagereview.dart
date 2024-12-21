@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:lohkan_app/screens/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:lohkan_app/food_review/models/foodreview_entry.dart';
@@ -20,7 +19,6 @@ class _PageFoodReviewState extends State<PageFoodReview> {
   final _formKey = GlobalKey<FormState>();
   String currentSearchTerm = '';
   String filter = 'All'; 
- // This will hold the current filter type
 
   @override
   void initState() {
@@ -29,7 +27,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
   }
 
   Future<Map<String, dynamic>> fetchAndProcessReviews() async {
-    var url = Uri.parse('http://127.0.0.1:8000/food-review/json/');
+    var url = Uri.parse('http://10.0.2.2:8000/food-review/json/');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       List<ReviewEntry> entries = reviewEntryFromJson(response.body);
@@ -76,7 +74,6 @@ class _PageFoodReviewState extends State<PageFoodReview> {
 
     // Function to show popup
   void _showAddReviewDialog(BuildContext context) {
-  // final request = Provider.of<CookieRequest>(context); // pakai yg di web pbp
   final request = context.read<CookieRequest>();
 
   // Controllers for text fields
@@ -181,7 +178,7 @@ class _PageFoodReviewState extends State<PageFoodReview> {
 
                     // Perform POST request
                     var response = await request.postJson(
-                      'http://127.0.0.1:8000/food-review/create-review-flutter/',
+                      'http://10.0.2.2:8000/food-review/create-review-flutter/',
                       jsonEncode({
                         'name': normalizedFoodName,
                         'food_type': selectedFoodType,
@@ -192,7 +189,6 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                   
 
                     if (response["message"].contains("successfully") || response['statusCode'] == 201) {
-                      // print("SUKSES");
                       // Refetch the reviews to update the state
                       futureFoodReviews = fetchAndProcessReviews();
 
@@ -201,7 +197,6 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                         content: Text("Review successfully created!"),
                         backgroundColor: Colors.green,
                       ));
-                      // print("MEONG");
 
                       // Close the modal
                       Navigator.pop(context);
@@ -265,8 +260,6 @@ class _PageFoodReviewState extends State<PageFoodReview> {
                             child: SizedBox(height: 20), // Space at the top
                       ),
                       
-
-
                       // Top Rated Dishes
                       SliverToBoxAdapter(
                             child: Padding(

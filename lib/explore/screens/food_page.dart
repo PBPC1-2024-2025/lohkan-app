@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:lohkan_app/explore/screens/form_edit.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
-
-import 'explore.dart';
 import 'package:lohkan_app/bucket_list/models/bucketlist_entry.dart';
 
 class FoodPage extends StatefulWidget {
@@ -48,7 +46,7 @@ class _FoodPageState extends State<FoodPage> {
     String? selectedId;
 
     Future<List<BucketListEntry>> fetchBucketList(CookieRequest request) async {
-      final response = await request.get('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/json/');
+      final response = await request.get('http://10.0.2.2:8000/bucket-list/json/');
       
       // Melakukan decode response menjadi bentuk json
       var data = response;
@@ -180,7 +178,7 @@ class _FoodPageState extends State<FoodPage> {
                     if (bookmarkFormKey.currentState!.validate()) {
                       try {
                         final response = await request.post(
-                          'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/explore/add-to-bucket-list/$foodId/$selectedId/',
+                          'http://10.0.2.2:8000/explore/add-to-bucket-list/$foodId/$selectedId/',
                           jsonEncode({
                             'name': selectedValue,
                           }),
@@ -321,7 +319,7 @@ class _FoodPageState extends State<FoodPage> {
                           );
                           if (confirmDelete) {
                             final response = await request.postJson(
-                              "http://marla-marlena-lohkan.pbp.cs.ui.ac.id/explore/delete-food-flutter/${widget.food.pk}/",
+                              "http://10.0.2.2:8000/explore/delete-food-flutter/${widget.food.pk}/",
                               jsonEncode(
                                 <String, String>{
                                   'delete': 'yes',

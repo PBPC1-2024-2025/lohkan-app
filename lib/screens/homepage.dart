@@ -13,9 +13,6 @@ import 'package:lohkan_app/explore/screens/explore.dart';
 
 class HomePage extends StatefulWidget {
   final String username;
-  // final String userId;
-  // const HomePage({super.key});
-  // const HomePage({super.key, required this.username, required this.userId});
   const HomePage({super.key, required this.username});
 
   @override
@@ -26,7 +23,6 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   bool _showBucketList = false;
 
-  // Daftar halaman untuk navigasi BottomNavigationBar
 late List<Widget> _pages;
 
 @override
@@ -46,7 +42,6 @@ void initState() {
   ];
 }
   
-
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -172,10 +167,6 @@ void initState() {
                 icon: Icon(Icons.article),
                 label: 'Article',
               ),
-              // BottomNavigationBarItem(
-              //   icon: Icon(Icons.bookmark),
-              //   label: 'Bucket List',
-              // )
             ],
           ),
         ],

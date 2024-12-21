@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lohkan_app/food_review/models/foodreview_entry.dart';
-import 'package:http/http.dart' as http;
 
 void showAddReviewModal(BuildContext context) {
   showModalBottomSheet(

@@ -168,7 +168,7 @@ class FoodItemCard extends StatelessWidget {
                       final request = context.read<CookieRequest>();
                       try {
                         final response = await request.post(
-                          'http://marla-marlena-lohkan.pbp.cs.ui.ac.id/bucket-list/remove-food/$foodId/$bucketId/',
+                          'http://10.0.2.2:8000/bucket-list/remove-food/$foodId/$bucketId/',
                           {},
                         );
 

@@ -101,7 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                   final response = await request.postJson(
                     "http://10.0.2.2:8000/auth/register/",
-                    // "http://10.0.2.2:8000/auth/register/",
+                    
 
                     jsonEncode({
                       "username": username,
@@ -112,8 +112,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                   if (context.mounted) {
                     if (response['status'] == 'success') {
-                      // final request = Provider.of<CookieRequest>(context, listen: false);
-                      // String userId = response['user_id'];
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Successfully registered!'),

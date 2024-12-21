@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
-
 import 'package:flutter/material.dart';
-import 'package:lohkan_app/explore/screens/explore.dart';
 import 'package:pbp_django_auth/pbp_django_auth.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +23,6 @@ class _EditFoodFormState extends State<EditFoodForm> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _name = widget.food.fields.name;
     _description = widget.food.fields.description;
@@ -312,7 +309,7 @@ class _EditFoodFormState extends State<EditFoodForm> {
                     if (_formKey.currentState!.validate()) {
                       // Kirim ke Django dan tunggu respons
                       final response = await request.postJson(
-                        "http://marla-marlena-lohkan.pbp.cs.ui.ac.id/explore/edit-food-flutter/${widget.food.pk}/",
+                        "http://10.0.2.2:8000/explore/edit-food-flutter/${widget.food.pk}/",
                         jsonEncode(<String, String>{
                           'name': _name,
                           'description': _description,

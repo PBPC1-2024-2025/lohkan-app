@@ -119,25 +119,20 @@ class _LoginPageState extends State<LoginPage> {
             
                   // Proses login
                   final response =
-                      await request.login("http://127.0.0.1:8000/auth/login/", {
-                    // .login("http://10.0.2.2:8000/auth/login/", {
-                    'username': username,
-                    'password': password,
-                    
-                  });
+                    await request.login("http://10.0.2.2:8000/auth/login/", {
+                      'username': username,
+                      'password': password,
+                    });
 
                   if (request.loggedIn) {
                     String message = response['message'];
                     String uname = response['username'];
-                    // String userId = response['user_id'];
-                    // print("User ID: $userId");
-                    
+                               
 
                     if (context.mounted) {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          // builder: (context) => HomePage(username: uname, userId: userId),
                           builder: (context) => HomePage(username: uname),
                         ),
                       );

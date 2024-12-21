@@ -17,8 +17,7 @@ class _ArticleScreenState extends State<ArticleScreenUser> {
 
   // Fungsi untuk mengambil data dari API
   Future<List<ArticleEntry>> fetchArticles() async {
-    // final response = await http.get(Uri.parse('http://10.0.2.2:8000/article/json/'));
-    final response = await http.get(Uri.parse('http://marla-marlena-lohkan.pbp.cs.ui.ac.id/article/json/'));
+    final response = await http.get(Uri.parse('http://10.0.2.2:8000/article/json/'));
     if (response.statusCode == 200) {
       return articleEntryFromJson(response.body);
     } else {

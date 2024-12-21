@@ -36,9 +36,7 @@ Future<void> _fetchComments() async {
   final request = Provider.of<CookieRequest>(context, listen: false);
 
   try {
-    // final response = await request.get('http://127.0.0.1:8000/article/json/');
-    // final response = await request.get('http://127.0.0.1:8000/article/json/');
-    final response = await request.get('http://127.0.0.1:8000/article/json/');
+    final response = await request.get('http://10.0.2.2:8000/article/json/');
 
     if (response != null) {
       List<dynamic> jsonResponse = response;
@@ -73,7 +71,7 @@ Future<void> _fetchComments() async {
       final request = Provider.of<CookieRequest>(context, listen: false);
       try {
         final response = await request.postJson(
-        'http://127.0.0.1:8000/article/article/${widget.articleId}/add_comment_flutter/', 
+        'http://10.0.2.2:8000/article/article/${widget.articleId}/add_comment_flutter/', 
 
         jsonEncode(<String, String>{
                 'article_id': widget.articleId,  
