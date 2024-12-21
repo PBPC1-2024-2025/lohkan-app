@@ -34,11 +34,22 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-
-  url_launcher: ^6.0.10  # Pastikan menggunakan versi terbaru
   provider: ^6.1.2
   pbp_django_auth: ^0.4.0
   http: ^1.2.2
+  file_picker: ^5.2.7
+  image_picker: ^1.1.2
+  http_parser: ^4.0.0
+  uuid: ^4.5.1
+  os: ^1.0.0
+  url_launcher: ^6.2.6
+  flutter_staggered_grid_view: ^0.7.0
+  cached_network_image: ^3.4.1
+  image_network: ^2.5.6
+  flutter_widget_from_html_core: ^0.15.2
+  intl: ^0.19.0
+  fluent_ui: ^4.9.2
+
 
 dev_dependencies:
   flutter_test:
@@ -49,7 +60,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -73,6 +84,14 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
 
+  assets:
+    - assets/
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-VariableFont_opsz,wght.ttf
+        - asset: assets/fonts/Inter-Italic-VariableFont_opsz,wght.ttf
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
@@ -93,6 +112,5 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-  assets:
-    - assets/
+
 

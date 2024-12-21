@@ -20,6 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final request = context.watch<CookieRequest>();
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(25.0),
@@ -27,14 +28,14 @@ class _RegisterPageState extends State<RegisterPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/register.png', 
+                'assets/register.png',
                 height: 200,
               ),
               const SizedBox(height: 16.0),
               const Text(
                 'REGISTER',
                 style: TextStyle(
-                  fontSize: 28.0,
+                  fontSize: 32.0,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF800000),
                 ),
@@ -99,7 +100,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   String password2 = _confirmPasswordController.text;
 
                   final response = await request.postJson(
-                    "http://127.0.0.1:8000/auth/register/",
+                    "http://10.0.2.2:8000/auth/register/",
+                    // "http://10.0.2.2:8000/auth/register/",
+
                     jsonEncode({
                       "username": username,
                       "password1": password1,
@@ -109,6 +112,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
                   if (context.mounted) {
                     if (response['status'] == 'success') {
+                      // final request = Provider.of<CookieRequest>(context, listen: false);
+                      // String userId = response['user_id'];
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Successfully registered!'),
@@ -139,7 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 child: const Text('REGISTER'),
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 40.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
